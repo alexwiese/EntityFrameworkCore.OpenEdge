@@ -18,8 +18,18 @@ Create an ODBC DSN for your Progress OpenEdge database. Pass the connection stri
         }
     }
  
- ## Scaffold/reverse engineer your model
+## Scaffold/reverse engineer your model
  
- From the Nuget Package Manager Console run this command (replacing the connection string).
+From the Nuget Package Manager Console run this command (replacing the connection string).
  
      Scaffold-DbContext "dsn=MyDb;password=mypassword" EntityFrameworkCore.OpenEdge -OutputDir Models
+     
+     
+## What's working?
+
+- Basic Queries
+- Joins
+- Inserts
+- Updates
+- Deletes
+- Scaffolding
