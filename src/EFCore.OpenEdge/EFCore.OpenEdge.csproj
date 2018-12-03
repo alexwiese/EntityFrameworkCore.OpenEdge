@@ -11,8 +11,8 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <Authors>Alex Wiese</Authors>
     <Description>Entity Framework Core provider for Progress OpenEdge</Description>
-    <PackageProjectUrl>https://github.com/alexwiese/EntityFramework.OpenEdge</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/alexwiese/EntityFramework.OpenEdge</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
   </PropertyGroup>
