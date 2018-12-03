@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
 {
-    public class OpenEdgeRelationalTypeMappingSource : RelationalTypeMappingSource
+    public class OpenEdgeTypeMappingSource : RelationalTypeMappingSource
     {
         private const int VarcharMaxSize = 32000;
 
         private readonly DateTimeTypeMapping _datetime = new DateTimeTypeMapping("datetime", DbType.DateTime);
+        private readonly DateTimeOffsetTypeMapping _datetimeOffset = new DateTimeOffsetTypeMapping("datetime-tz", DbType.DateTimeOffset);
         private readonly DateTimeTypeMapping _date = new DateTimeTypeMapping("date", DbType.Date);
         private readonly DateTimeTypeMapping _timeStamp = new DateTimeTypeMapping("timestamp", DbType.DateTime);
         private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time", DbType.Time);
@@ -32,7 +33,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
-        public OpenEdgeRelationalTypeMappingSource(TypeMappingSourceDependencies dependencies, RelationalTypeMappingSourceDependencies relationalDependencies)
+        public OpenEdgeTypeMappingSource(TypeMappingSourceDependencies dependencies, RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
             _clrTypeMappings
@@ -56,9 +57,12 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "bigint", _bigint },
+                    { "int64", _bigint },
                     { "binary varying", _binary },
+                    { "raw", _binary },
                     { "binary", _binary },
                     { "bit", _boolean},
+                    { "logical", _boolean},
                     { "char varying", _char },
                     { "char", _char },
                     { "character varying", _char },
@@ -66,18 +70,21 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "date", _date },
                     { "datetime", _datetime },
                     { "datetime2", _datetime },
-                    { "datetimeoffset", _datetime },
+                    { "datetimeoffset", _datetimeOffset },
+                    { "datetime-tz", _datetimeOffset },
                     { "dec", _decimal },
                     { "decimal", _decimal },
                     { "double precision", _double },
                     { "float", _double },
                     { "image", _binary },
                     { "int", _integer },
+                    { "integer", _integer },
                     { "money", _decimal },
                     { "numeric", _decimal },
                     { "real", _float },
                     { "smalldatetime", _datetime },
                     { "smallint", _smallint},
+                    { "short", _smallint},
                     { "smallmoney", _decimal },
                     { "text", _char},
                     { "time", _time },

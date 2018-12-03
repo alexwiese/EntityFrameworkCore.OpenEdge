@@ -24,7 +24,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
         {
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<OpenEdgeOptionsExtension>>()
-                .TryAdd<IRelationalTypeMappingSource, OpenEdgeRelationalTypeMappingSource>()
+                .TryAdd<IRelationalTypeMappingSource, OpenEdgeTypeMappingSource>()
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()

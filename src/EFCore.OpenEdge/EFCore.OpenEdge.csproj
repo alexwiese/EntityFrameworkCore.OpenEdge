@@ -21,6 +21,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Implemented reverse engineer/scaffold from database</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
