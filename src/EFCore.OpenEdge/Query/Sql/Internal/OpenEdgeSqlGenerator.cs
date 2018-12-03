@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EntityFrameworkCore.OpenEdge.Extensions;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -12,6 +10,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 {
     public class OpenEdgeSqlGenerator : DefaultQuerySqlGenerator
     {
+        private bool _existsConditional;
+
         public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies, SelectExpression selectExpression)
             : base(dependencies, selectExpression)
         {
@@ -34,6 +34,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                     parameterExpression.Type.IsNullableType());
             }
 
+            // Named parameters not supported in the command text
+            // Need to use '?' instead
             Sql.Append("?");
 
             return parameterExpression;
@@ -43,13 +45,28 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
         {
             var visitConditional = base.VisitConditional(conditionalExpression);
 
-            Sql.Append(@" FROM pub.""_File"" f WHERE f.""_File-Name"" = '_File'");
+            // OpenEdge requires that SELECT statements always include a table,
+            // so we SELECT from the _File metaschema table that always exists,
+            // selecting a single row that we know will always exist; the metaschema
+            // record for the _File metaschema table itself.
+            if (_existsConditional)
+                Sql.Append(@" FROM pub.""_File"" f WHERE f.""_File-Name"" = '_File'");
+
+            _existsConditional = false;
 
             return visitConditional;
         }
 
         public override Expression VisitExists(ExistsExpression existsExpression)
         {
+            // OpenEdge does not support WHEN EXISTS, only WHERE EXISTS
+            // We need to SELECT 1 using WHERE EXISTS, then compare
+            // the result to 1 to satisfy the conditional.
+
+            // OpenEdge requires that SELECT statements always include a table,
+            // so we SELECT from the _File metaschema table that always exists,
+            // selecting a single row that we know will always exist; the metaschema
+            // record for the _File metaschema table itself.
             Sql.AppendLine(@"(SELECT 1 FROM pub.""_File"" f WHERE f.""_File-Name"" = '_File' AND EXISTS (");
 
             using (Sql.Indent())
@@ -59,22 +76,11 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
             Sql.Append(")) = 1");
 
+            _existsConditional = true;
+
             return existsExpression;
         }
-
-        public override IRelationalCommand GenerateSql(IReadOnlyDictionary<string, object> parameterValues)
-        {
-            var relationalCommand = base.GenerateSql(parameterValues);
-            //Console.WriteLine("===================");
-            //Console.WriteLine(relationalCommand.CommandText);
-            foreach (var parameterValue in parameterValues)
-            {
-              //  Console.WriteLine(parameterValue.Key + " " + parameterValue.Value);
-            }
-           // Console.WriteLine("===================");
-            return relationalCommand;
-        }
-
+        
         protected override void GenerateTop(SelectExpression selectExpression)
         {
             if (selectExpression.Limit != null
@@ -86,7 +92,10 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                 if (selectExpression.Limit is ParameterExpression limitParameter
                     && ParameterValues.TryGetValue(limitParameter.Name, out var value))
                 {
-                    Sql.Append(value.ToString());
+                    var typeMapping = Dependencies.TypeMappingSource.GetMapping(limitParameter.Type);
+
+                    // OpenEdge does not support the user of parameters for TOP, so we use literal instead
+                    Sql.Append(GenerateSqlLiteral(typeMapping, value.ToString()));
                 }
                 else
                 {
@@ -108,6 +117,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             var limit = selectExpression.Limit;
             var offset = selectExpression.Offset;
 
+            // OpenEdge does not support the use of parameters for LIMIT/OFFSET
+            // Map the parameter expressions to constant expressions instead
             if (selectExpression.Offset is ParameterExpression offsetParameter
                 && ParameterValues.TryGetValue(offsetParameter.Name, out var value))
             {
@@ -120,6 +131,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                 limit = Expression.Constant(value);
             }
 
+            // Need to set limit to null first, to get around
+            // the push subquery logic in the setters
             selectExpression.Limit = null;
             selectExpression.Offset = null;
 

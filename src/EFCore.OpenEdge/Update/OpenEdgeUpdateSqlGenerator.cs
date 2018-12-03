@@ -47,17 +47,8 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     .AppendJoin(
                         operations,
                         SqlGenerationHelper,
-                        (sb, o, helper) =>
-                        {
-                            if (o.IsWrite)
-                            {
-                                AppendSqlLiteral(sb, o.Value, o.Property);
-                            }
-                            else
-                            {
-                                sb.Append("DEFAULT");
-                            }
-                        })
+                        // Use '?' rather than named parameters
+                        (sb, o, helper) => { sb.Append(o.IsWrite ? "?" : "DEFAULT"); })
                     .Append(")");
             }
         }

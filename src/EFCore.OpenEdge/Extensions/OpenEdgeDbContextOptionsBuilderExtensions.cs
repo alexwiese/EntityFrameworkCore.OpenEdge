@@ -1,4 +1,5 @@
 ﻿using System;
+using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
