@@ -14,7 +14,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
         public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies, SelectExpression selectExpression)
             : base(dependencies, selectExpression)
-        {
+        {            
         }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
@@ -26,7 +26,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             {
                 var typeMapping
                     = Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
-                
+
                 Sql.AddParameter(
                     parameterExpression.Name,
                     parameterName,
@@ -80,7 +80,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
             return existsExpression;
         }
-        
+
         protected override void GenerateTop(SelectExpression selectExpression)
         {
             if (selectExpression.Limit != null
@@ -95,7 +95,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                     var typeMapping = Dependencies.TypeMappingSource.GetMapping(limitParameter.Type);
 
                     // OpenEdge does not support the user of parameters for TOP, so we use literal instead
-                    Sql.Append(GenerateSqlLiteral(typeMapping, value.ToString()));
+                    Sql.Append(GenerateSqlLiteral(typeMapping, value));
                 }
                 else
                 {
@@ -163,7 +163,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             {
                 relationalTypeMapping = Dependencies.TypeMappingSource.GetMappingForValue(value);
             }
-            
+
             return relationalTypeMapping.GenerateSqlLiteral(value);
         }
 

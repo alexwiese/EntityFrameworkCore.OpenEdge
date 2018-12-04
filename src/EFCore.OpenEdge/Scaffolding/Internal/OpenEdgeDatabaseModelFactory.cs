@@ -8,8 +8,6 @@ using System.Text;
 using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -157,27 +155,15 @@ FROM ""pub"".""_File"" t ";
                             {
                                 defaultValue = null;
                             }
-
-                            string mapStoreType(string value)
-                            {
-                                switch (value)
-                                {
-
-                                    default:
-                                        return value;
-                                }
-                            }
-
+                            
                             table.Columns.Add(new DatabaseColumn
                                 {
                                     Table = table,
                                     Name = columnName,
-                                    StoreType = mapStoreType(storeType),
+                                    StoreType = storeType,
                                     IsNullable = isNullable,
                                     DefaultValueSql = defaultValue?.ToString(),
-                                    ValueGenerated = isIdentity
-                                        ? ValueGenerated.OnAdd
-                                        : default(ValueGenerated?)
+                                    ValueGenerated = default
                                 });
 
 
@@ -189,6 +175,7 @@ FROM ""pub"".""_File"" t ";
                             }
                         }
 
+                        // OpenEdge supports having tables with no primary key
                         if (!primaryKey.Columns.Any())
                         {
                             databaseModel.Tables.Remove(table);
