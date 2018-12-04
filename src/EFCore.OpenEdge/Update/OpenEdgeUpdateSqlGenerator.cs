@@ -21,22 +21,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
         }
-
-        protected override void AppendInsertCommand(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<ColumnModification> writeOperations)
-        {
-            base.AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
-
-            Console.WriteLine(commandStringBuilder.ToString());
-        }
-
-        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command,
-            int commandPosition)
-        {
-            var appendUpdateOperation = base.AppendUpdateOperation(commandStringBuilder, command, commandPosition);
-
-            Console.WriteLine(commandStringBuilder.ToString());
-            return appendUpdateOperation;
-        }
+        
 
         protected override void AppendValues(StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> operations)
         {

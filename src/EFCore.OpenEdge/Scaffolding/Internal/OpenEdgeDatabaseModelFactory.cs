@@ -74,8 +74,6 @@ FROM ""pub"".""_File"" t ";
                 var filter =
                     $"WHERE t.\"_File-Name\" <> '{HistoryRepository.DefaultTableName}' {(tableFilter != null ? $" AND {tableFilter("t.\"_file-name\"")}" : "")}";
 
-                Console.WriteLine(commandText + filter);
-
                 command.CommandText = commandText + filter;
 
                 using (var reader = command.ExecuteReader())
