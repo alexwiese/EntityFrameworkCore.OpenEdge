@@ -14,7 +14,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
         public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies, SelectExpression selectExpression)
             : base(dependencies, selectExpression)
-        {            
+        {
         }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
@@ -104,6 +104,34 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
                 Sql.Append(" ");
             }
+        }
+
+        protected override void GenerateProjection(Expression projection)
+        {
+            Expression RemoveParameters(Expression expression)
+            {
+                switch (expression)
+                {
+                    case AliasExpression aliasExpression:
+                        return new AliasExpression(aliasExpression.Alias, RemoveParameters(aliasExpression.Expression));
+
+                    case ParameterExpression parameterExpression:
+                        if (ParameterValues.TryGetValue(parameterExpression.Name, out var value))
+                        {
+                            return Expression.Constant(value);
+                        }
+
+                        return expression;
+
+                    default:
+                        return expression;
+                }
+            }
+
+            // OpenEdge doesn't allow parameters in a SELECT list
+            projection = RemoveParameters(projection);
+
+            base.GenerateProjection(projection);
         }
 
         protected override void GenerateLimitOffset(SelectExpression selectExpression)

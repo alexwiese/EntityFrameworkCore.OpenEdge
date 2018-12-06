@@ -21,8 +21,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2</Version>
-    <PackageReleaseNotes>Implemented reverse engineer/scaffold from database</PackageReleaseNotes>
+    <Version>1.0.3</Version>
+    <PackageReleaseNotes>Fix issue with parameters in SELECT list</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
