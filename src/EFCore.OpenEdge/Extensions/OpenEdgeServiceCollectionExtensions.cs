@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using EntityFrameworkCore.OpenEdge.Metadata.Conventions.Internal;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal;
+using EntityFrameworkCore.OpenEdge.Query.Internal;
 using EntityFrameworkCore.OpenEdge.Query.Sql.Internal;
 using EntityFrameworkCore.OpenEdge.Storage;
 using EntityFrameworkCore.OpenEdge.Storage.Internal;
@@ -9,7 +10,9 @@ using EntityFrameworkCore.OpenEdge.Update;
 using EntityFrameworkCore.OpenEdge.Update.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -31,6 +34,8 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 .TryAdd<ISingletonUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
+                .TryAdd<IRelationalResultOperatorHandler, OpenEdgeResultOperatorHandler>()
+                .TryAdd<IQueryModelGenerator, OpenEdgeQueryModelGenerator>()
 
                 .TryAdd<IBatchExecutor, BatchExecutor>()
 

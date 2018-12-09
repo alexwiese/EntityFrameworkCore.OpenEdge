@@ -1,0 +1,74 @@
+﻿using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
+
+namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
+{
+    public class OpenEdgeParameterExtractingExpressionVisitor : ParameterExtractingExpressionVisitor
+    {
+        public OpenEdgeParameterExtractingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            IParameterValues parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            DbContext context,
+            bool parameterize, bool
+                generateContextAccessors = false)
+            : base(evaluatableExpressionFilter, parameterValues, logger, context, parameterize, generateContextAccessors)
+        {
+        }
+
+        protected Expression VisitNewMember(MemberExpression memberExpression)
+        {
+            if (memberExpression.Expression is ConstantExpression constant
+                && constant.Value != null)
+            {
+                switch (memberExpression.Member.MemberType)
+                {
+                    case MemberTypes.Field:
+                        return Expression.Constant(constant.Value.GetType().GetField(memberExpression.Member.Name).GetValue(constant.Value));
+
+                    case MemberTypes.Property:
+                        var propertyInfo = constant.Value.GetType().GetProperty(memberExpression.Member.Name);
+                        if (propertyInfo == null)
+                        {
+                            break;
+                        }
+
+                        return Expression.Constant(propertyInfo.GetValue(constant.Value));
+                }
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var memberArguments = node.Arguments.OfType<MemberExpression>().Select(VisitNewMember).ToList();
+
+            var arguments = Visit(node.Arguments.Where(a => !(a is MemberExpression)).ToList().AsReadOnly());
+
+            var newNode = node.Update(memberArguments.Concat(arguments));
+
+            return newNode;
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.Name == "Take")
+            {
+                return methodCallExpression;
+            }
+
+            if (methodCallExpression.Method.Name == "Skip")
+            {
+                return methodCallExpression;
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+    }
+}
