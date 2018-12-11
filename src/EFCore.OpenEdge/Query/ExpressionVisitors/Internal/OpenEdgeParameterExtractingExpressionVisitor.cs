@@ -47,11 +47,11 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitNew(NewExpression node)
         {
-            var memberArguments = node.Arguments.OfType<MemberExpression>().Select(VisitNewMember).ToList();
+            var memberArguments = node.Arguments
+                .Select(m => m is MemberExpression mem ? VisitNewMember(mem) : Visit(m))
+                .ToList();
 
-            var arguments = Visit(node.Arguments.Where(a => !(a is MemberExpression)).ToList().AsReadOnly());
-
-            var newNode = node.Update(memberArguments.Concat(arguments));
+            var newNode = node.Update(memberArguments);
 
             return newNode;
         }
