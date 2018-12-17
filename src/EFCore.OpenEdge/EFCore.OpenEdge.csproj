@@ -21,7 +21,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.4</Version>
+    <Version>1.0.6</Version>
     <PackageReleaseNotes>Fix issues where query was being cached, moved modifications up to the model generator so that the actual query would differ and not be cached.</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
