@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,10 +18,14 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
+            commandStringBuilder
+                .Append("1 = 1");
         }
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
+            commandStringBuilder
+                .Append("1 = 1");
         }
         
 
@@ -98,6 +104,36 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     commandStringBuilder.Append("?");
                 }
             }
+        }
+
+        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command,
+            int commandPosition)
+        {
+
+            var name = command.TableName;
+            var schema = command.Schema;
+            var operations = command.ColumnModifications;
+
+            var writeOperations = operations.Where(o => o.IsWrite).ToList();
+
+            AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
+            
+            return ResultSetMapping.NoResultSet;
+        }
+
+        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command,
+            int commandPosition)
+        {
+            var name = command.TableName;
+            var schema = command.Schema;
+            var operations = command.ColumnModifications;
+
+            var writeOperations = operations.Where(o => o.IsWrite).ToList();
+            var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+
+            AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
+            
+            return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
     }
 }
