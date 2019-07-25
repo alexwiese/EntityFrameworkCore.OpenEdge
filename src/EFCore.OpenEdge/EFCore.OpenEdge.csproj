@@ -21,14 +21,14 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.6</Version>
+    <Version>1.0.8</Version>
     <PackageReleaseNotes>Fix issues where query was being cached, moved modifications up to the model generator so that the actual query would differ and not be cached.</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.4" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[2.1.4,2.2)" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[2.1.4,2.2)" PrivateAssets="none" />
     <PackageReference Include="System.Data.Odbc" Version="4.5.0" />
   </ItemGroup>
 
