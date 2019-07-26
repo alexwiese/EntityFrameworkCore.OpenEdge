@@ -32,3 +32,19 @@ From the Nuget Package Manager Console run this command (replacing the connectio
 - Updates
 - Deletes
 - Scaffolding
+
+## Gotchas
+
+OpenEdge Databases are a bit different when it comes to primary keys. Ie. there aren’t any “real” primary keys. There are primary indexes but they do _not_ have to be unique which causes issues with EFCore (which the provider can’t circumvent). EFCore entity tracking requires all primary keys to be unique, otherwise the materialised entity objects will conflict. The only thing that is close to a primary key (if there is no unique, primary index available) in OpenEdge is the “rowid”. You can expose the rowid and use that as the primary key.
+
+Example:
+
+    [Key]
+    [Column("rowid")]
+    public string Rowid { get; set; }
+    
+Note that rowid is a special OpenEdge value that uniquely represents the record, this means you can add this to any OpenEdge entity and use it as a proper primary key.
+
+For a unique primary index that has multiple fields then you can do the following in OnModelCreating:
+
+    modelBuilder.Entity<transaction>().HasKey("TransactionId", "ClientId", "SecondaryId");
