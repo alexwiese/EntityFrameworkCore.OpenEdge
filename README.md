@@ -2,6 +2,7 @@
 
 [![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.OpenEdge.svg)](https://www.nuget.org/packages/EntityFrameworkCore.OpenEdge)
 [![Nuget](https://img.shields.io/nuget/dt/EntityFrameworkCore.OpenEdge.svg)](https://www.nuget.org/packages/EntityFrameworkCore.OpenEdge)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge?ref=badge_shield)
 
 EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows you to use Entity Framework Core with Progress OpenEdge.
 
@@ -48,3 +49,7 @@ Note that rowid is a special OpenEdge value that uniquely represents the record,
 For a unique primary index that has multiple fields then you can do the following in OnModelCreating:
 
     modelBuilder.Entity<transaction>().HasKey("TransactionId", "ClientId", "SecondaryId");
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge?ref=badge_large)
