@@ -11,10 +11,14 @@ namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
             : base(dependencies)
         {
         }
-
-        public override MethodCallCodeFragment GenerateUseProvider(string connectionString)
-        {
-            return new MethodCallCodeFragment(nameof(OpenEdgeDbContextOptionsBuilderExtensions.UseOpenEdge), connectionString);
-        }
+        
+        public override MethodCallCodeFragment GenerateUseProvider(
+            string connectionString,
+            MethodCallCodeFragment providerOptions)
+            => new MethodCallCodeFragment(
+                nameof(OpenEdgeDbContextOptionsBuilderExtensions.UseOpenEdge),
+                providerOptions == null
+                    ? new object[] { connectionString }
+                    : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
     }
 }

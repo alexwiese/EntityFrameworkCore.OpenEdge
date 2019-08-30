@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.Odbc;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -42,11 +43,26 @@ namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
                 connection.Open();
             }
 
+            string TableFilter(string sql)
+            {
+                // Ignore 'system' tables that start with an underscore by default
+                const string systemTableExclusion = " AND t.\"_File-Name\" NOT LIKE '^_%' ESCAPE '^'";
+
+                if (!tables.Any())
+                {
+                    return systemTableExclusion;
+                }
+
+                var tableList = tables.Select(t => $"{sql} = '{t}'");
+
+                return $" AND ({string.Join(" OR ", tableList)})";
+            }
+
             try
             {
                 databaseModel.DefaultSchema = DatabaseModelDefaultSchema;
 
-                GetTables(connection, null, databaseModel);
+                GetTables(connection, TableFilter, databaseModel);
 
                 return databaseModel;
             }
@@ -71,8 +87,11 @@ SELECT
     t.""_File-Name"" AS 'name'
 FROM ""pub"".""_File"" t ";
 
+                // Ignore 'system' tables that start with an underscore by default
+                var systemTableExclusion = " AND t.\"_File-Name\" NOT LIKE '^_%' ESCAPE '^'";
+
                 var filter =
-                    $"WHERE t.\"_File-Name\" <> '{HistoryRepository.DefaultTableName}' {(tableFilter != null ? $" AND {tableFilter("t.\"_file-name\"")}" : "")}";
+                    $"WHERE t.\"_File-Name\" <> '{HistoryRepository.DefaultTableName}' {(tableFilter != null ? tableFilter("t.\"_file-name\"") : systemTableExclusion)}";
 
                 command.CommandText = commandText + filter;
 
@@ -103,6 +122,7 @@ FROM ""pub"".""_File"" t ";
         {
             using (var command = connection.CreateCommand())
             {
+
                 command.CommandText = new StringBuilder()
                     .AppendLine("SELECT")
                     .AppendLine("   f.\"_Field-Name\",")
@@ -120,13 +140,13 @@ FROM ""pub"".""_File"" t ";
                     .AppendLine(tableFilter)
                     .AppendLine("ORDER BY f.\"_Order\"")
                     .ToString();
-                
+
                 using (var reader = command.ExecuteReader())
                 {
                     var tableColumnGroups = reader.Cast<DbDataRecord>()
                         .GroupBy(
                             ddr => ddr.GetValueOrDefault<string>("name"));
-                    
+
                     foreach (var tableColumnGroup in tableColumnGroups)
                     {
                         var tableName = tableColumnGroup.Key;
@@ -153,16 +173,16 @@ FROM ""pub"".""_File"" t ";
                             {
                                 defaultValue = null;
                             }
-                            
+
                             table.Columns.Add(new DatabaseColumn
-                                {
-                                    Table = table,
-                                    Name = columnName,
-                                    StoreType = storeType,
-                                    IsNullable = isNullable,
-                                    DefaultValueSql = defaultValue?.ToString(),
-                                    ValueGenerated = default
-                                });
+                            {
+                                Table = table,
+                                Name = columnName,
+                                StoreType = storeType,
+                                IsNullable = isNullable,
+                                DefaultValueSql = defaultValue?.ToString(),
+                                ValueGenerated = default
+                            });
 
 
                             if (isIdentity)
