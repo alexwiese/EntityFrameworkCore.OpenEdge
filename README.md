@@ -8,6 +8,18 @@ EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows yo
 
 ## Usage
 
+### DSN-less Connection
+
+    public class MyDbContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseOpenEdge("Driver=Progress OpenEdge 11.7 Driver;HOST=localhost;port=10000;UID=<user>;PWD=<password>;DIL=1;Database=<database>");
+        }
+    }
+
+### Using a DSN
+
 Create an ODBC DSN for your Progress OpenEdge database. Pass the connection string to the `UseOpenEdge` extension method.
 
     public class MyDbContext : DbContext
