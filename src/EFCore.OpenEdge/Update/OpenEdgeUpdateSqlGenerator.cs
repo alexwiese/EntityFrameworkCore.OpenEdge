@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -27,10 +28,12 @@ namespace EntityFrameworkCore.OpenEdge.Update
             commandStringBuilder
                 .Append("1 = 1");
         }
-        
+
 
         protected override void AppendValues(StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> operations)
         {
+            bool useLiterals = true;
+
             if (operations.Count > 0)
             {
                 commandStringBuilder
@@ -38,10 +41,26 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     .AppendJoin(
                         operations,
                         SqlGenerationHelper,
-                        // Use '?' rather than named parameters
-                        (sb, o, helper) => { sb.Append(o.IsWrite ? "?" : "DEFAULT"); })
+                     
+                        (sb, o, helper) =>
+                        {
+                            if (useLiterals)
+                            {
+                                AppendSqlLiteral(sb, o.Value, o.Property);
+                            }
+                            else
+                            {
+                                // Use '?' rather than named parameters
+                                AppendParameter(sb, o);
+                            }
+                        })
                     .Append(")");
             }
+        }
+
+        private void AppendParameter(StringBuilder commandStringBuilder, ColumnModification modification)
+        {
+            commandStringBuilder.Append(modification.IsWrite ? "?" : "DEFAULT");
         }
 
         private void AppendSqlLiteral(StringBuilder commandStringBuilder, object value, IProperty property)
@@ -114,10 +133,12 @@ namespace EntityFrameworkCore.OpenEdge.Update
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
-            var writeOperations = operations.Where(o => o.IsWrite).ToList();
-
+            var writeOperations = operations.Where(o => o.IsWrite)
+                .Where(o => o.ColumnName != "rowid")
+                .ToList();
+                     
             AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
-            
+
             return ResultSetMapping.NoResultSet;
         }
 
@@ -132,7 +153,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
             var conditionOperations = operations.Where(o => o.IsCondition).ToList();
 
             AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
-            
+
             return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
     }
