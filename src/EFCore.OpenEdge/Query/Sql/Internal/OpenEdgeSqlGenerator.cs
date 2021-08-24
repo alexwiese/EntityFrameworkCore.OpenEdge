@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using EntityFrameworkCore.OpenEdge.Extensions;
@@ -15,7 +16,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             : base(dependencies, selectExpression)
         {
         }
-        
+
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
@@ -92,6 +93,20 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
                 Sql.Append(" ");
             }
+        }
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        {
+            if ((constantExpression.Type == typeof(DateTime) || constantExpression.Type == typeof(DateTime?))
+                && constantExpression.Value != null)
+            {
+                var dateTime = (DateTime)constantExpression.Value;
+                Sql.Append($"{{ ts '{dateTime:yyyy-MM-dd HH:mm:ss}' }}");
+            }
+            else
+                base.VisitConstant(constantExpression);
+            
+            return constantExpression;
         }
     }
 }
