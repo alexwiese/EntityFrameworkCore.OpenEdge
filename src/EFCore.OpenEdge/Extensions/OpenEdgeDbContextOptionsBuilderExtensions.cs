@@ -1,18 +1,15 @@
-﻿using System;
-using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore;
+﻿using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public static class OpenEdgeDbContextOptionsBuilderExtensions
     {
-        public static DbContextOptionsBuilder UseOpenEdge(
-            this DbContextOptionsBuilder optionsBuilder,
-            string connectionString,
-            Action<DbContextOptionsBuilder> optionsAction = null)
+        public static DbContextOptionsBuilder UseOpenEdge(this DbContextOptionsBuilder optionsBuilder,
+                                                          string connectionString,
+                                                          Action<DbContextOptionsBuilder> optionsAction = null)
         {
-            
             var extension = GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -21,10 +18,9 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
 
-        public static DbContextOptionsBuilder<TContext> UseOpenEdge<TContext>(
-            this DbContextOptionsBuilder<TContext> optionsBuilder,
-            string connectionString,
-            Action<DbContextOptionsBuilder> optionsAction = null)
+        public static DbContextOptionsBuilder<TContext> UseOpenEdge<TContext>(this DbContextOptionsBuilder<TContext> optionsBuilder,
+                                                                              string connectionString,
+                                                                              Action<DbContextOptionsBuilder> optionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseOpenEdge(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, optionsAction);

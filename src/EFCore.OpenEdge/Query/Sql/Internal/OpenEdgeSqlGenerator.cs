@@ -1,31 +1,34 @@
-using System;
+using EntityFrameworkCore.OpenEdge.Extensions;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq;
 using System.Linq.Expressions;
-using EntityFrameworkCore.OpenEdge.Extensions;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Sql;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 {
-    public class OpenEdgeSqlGenerator : DefaultQuerySqlGenerator
+    public class OpenEdgeSqlGenerator : QuerySqlGenerator
     {
         private bool _existsConditional;
 
-        public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies, SelectExpression selectExpression)
-            : base(dependencies, selectExpression)
+        public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies) : base(dependencies)
         {
+        }
+
+        protected override Expression VisitTable(TableExpression tableExpression)
+        {
+            var result = base.VisitTable(tableExpression);
+            Sql.Append(" WITH (NOLOCK)");
+            return result;
         }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
+            var parameterName = Dependencies.SqlGenerationHelper.GenerateParameterName(parameterExpression.Name);
 
-            if (Sql.ParameterBuilder.Parameters
-                .All(p => p.InvariantName != parameterExpression.Name))
+            if (Sql.Parameters.All(p => p.InvariantName != parameterExpression.Name))
             {
-                var typeMapping
-                    = Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
+                var typeMapping = Sql.TypeMappingSource.GetMapping(parameterExpression.Type);
 
                 Sql.AddParameter(
                     parameterExpression.Name,
@@ -57,7 +60,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             return visitConditional;
         }
 
-        public override Expression VisitExists(ExistsExpression existsExpression)
+        protected override Expression VisitExists(ExistsExpression existsExpression)
         {
             // OpenEdge does not support WHEN EXISTS, only WHERE EXISTS
             // We need to SELECT 1 using WHERE EXISTS, then compare
@@ -93,20 +96,6 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
                 Sql.Append(" ");
             }
-        }
-
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            if ((constantExpression.Type == typeof(DateTime) || constantExpression.Type == typeof(DateTime?))
-                && constantExpression.Value != null)
-            {
-                var dateTime = (DateTime)constantExpression.Value;
-                Sql.Append($"{{ ts '{dateTime:yyyy-MM-dd HH:mm:ss}' }}");
-            }
-            else
-                base.VisitConstant(constantExpression);
-            
-            return constantExpression;
         }
     }
 }

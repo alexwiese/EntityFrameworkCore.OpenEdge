@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query;
+//using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
 {
-    public class OpenEdgeCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+    public class OpenEdgeCompositeMethodCallTranslator : RelationalMethodCallTranslatorProvider //RelationalCompositeMethodCallTranslator
     {
         private static readonly List<Type> _translatorsMethods
             = GetTranslatorMethods<IMethodCallTranslator>().ToList();
 
-        public OpenEdgeCompositeMethodCallTranslator(RelationalCompositeMethodCallTranslatorDependencies dependencies)
+        public OpenEdgeCompositeMethodCallTranslator(RelationalMethodCallTranslatorProviderDependencies dependencies)
             : base(dependencies)
-            => AddTranslators(_translatorsMethods.Select(type => (IMethodCallTranslator)Activator.CreateInstance(type)));
+        {
+            AddTranslators(_translatorsMethods.Select(type => (IMethodCallTranslator)Activator.CreateInstance(type)));
+        }
 
         public static IEnumerable<Type> GetTranslatorMethods<TInteface>()
             => Assembly

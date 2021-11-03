@@ -1,12 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
+    <TargetFramework>net5.0</TargetFramework>
+	<AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
     <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
-    <LangVersion>7.2</LangVersion>
-    <VersionPrefix>1.0.0</VersionPrefix>
-    <SignAssembly>true</SignAssembly>
+	<SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../efcoreoe.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <Authors>Alex Wiese</Authors>
@@ -16,7 +14,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
   </PropertyGroup>
-
+  
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
@@ -28,9 +26,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[2.1.4,2.2)" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[2.1.4,2.2)" PrivateAssets="none" />
-    <PackageReference Include="System.Data.Odbc" Version="4.5.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.11" PrivateAssets="none" />
+    <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

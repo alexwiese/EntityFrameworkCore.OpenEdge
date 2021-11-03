@@ -1,23 +1,32 @@
-﻿using System.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class OpenEdgeParameterExtractingExpressionVisitor : ParameterExtractingExpressionVisitor
+#pragma warning restore EF1001 // Internal EF Core API usage.
     {
         public OpenEdgeParameterExtractingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            IParameterValues parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            DbContext context,
-            bool parameterize, bool
-                generateContextAccessors = false)
-            : base(evaluatableExpressionFilter, parameterValues, logger, context, parameterize, generateContextAccessors)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                                            IParameterValues parameterValues,
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                                                            Type contextType,
+                                                            IModel model,
+                                                            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                                                            bool parameterize,
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                                            bool generateContextAccessors) :
+            base(evaluatableExpressionFilter, parameterValues, contextType, model, logger, parameterize, generateContextAccessors)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
         }
 
@@ -48,7 +57,9 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         protected override Expression VisitNew(NewExpression node)
         {
             var memberArguments = node.Arguments
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Select(m => m is MemberExpression mem ? VisitNewMember(mem) : Visit(m))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 .ToList();
 
             var newNode = node.Update(memberArguments);
