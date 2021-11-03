@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using EntityFrameworkCore.OpenEdge.Extensions;
+﻿using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace EntityFrameworkCore.OpenEdge.Update
 {
@@ -29,8 +26,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                 .Append("1 = 1");
         }
 
-
-        protected override void AppendValues(StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> operations)
+        protected override void AppendValues(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<ColumnModification> operations)
         {
             bool useLiterals = true;
 
@@ -73,8 +69,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
 
-        protected override void AppendUpdateCommandHeader(StringBuilder commandStringBuilder, string name, string schema,
-            IReadOnlyList<ColumnModification> operations)
+        protected override void AppendUpdateCommandHeader(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<ColumnModification> operations)
         {
             commandStringBuilder.Append("UPDATE ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
@@ -97,8 +92,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     });
         }
 
-        protected override void AppendWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification,
-            bool useOriginalValue)
+        protected override void AppendWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification, bool useOriginalValue)
         {
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
 
@@ -125,10 +119,8 @@ namespace EntityFrameworkCore.OpenEdge.Update
             }
         }
 
-        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command,
-            int commandPosition)
+        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
-
             var name = command.TableName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
@@ -142,8 +134,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
             return ResultSetMapping.NoResultSet;
         }
 
-        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command,
-            int commandPosition)
+        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             var name = command.TableName;
             var schema = command.Schema;

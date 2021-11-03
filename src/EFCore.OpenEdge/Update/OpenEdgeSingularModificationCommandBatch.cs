@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EntityFrameworkCore.OpenEdge.Update
 {
@@ -9,16 +9,15 @@ namespace EntityFrameworkCore.OpenEdge.Update
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
-        public OpenEdgeSingularModificationCommandBatch(IRelationalCommandBuilderFactory commandBuilderFactory, ISqlGenerationHelper sqlGenerationHelper, IUpdateSqlGenerator updateSqlGenerator, IRelationalValueBufferFactoryFactory valueBufferFactoryFactory) : base(commandBuilderFactory, sqlGenerationHelper, updateSqlGenerator, valueBufferFactoryFactory)
+        public OpenEdgeSingularModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies) : base(dependencies)
         {
-            _commandBuilderFactory = commandBuilderFactory;
+            _commandBuilderFactory = dependencies.CommandBuilderFactory;
         }
 
         protected override RawSqlCommand CreateStoreCommand()
         {
-            var commandBuilder = _commandBuilderFactory
-                .Create()
-                .Append(GetCommandText());
+            var commandBuilder = _commandBuilderFactory.Create()
+                                                       .Append(GetCommandText());
 
             var parameterValues = new Dictionary<string, object>(GetParameterCount());
 
@@ -31,18 +30,22 @@ namespace EntityFrameworkCore.OpenEdge.Update
                 {
                     if (columnModification.UseCurrentValueParameter)
                     {
-                        commandBuilder.AddParameter(columnModification.ParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                            columnModification.Property);
+                        commandBuilder.AddParameter(
+                            columnModification.ParameterName,
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.ParameterName, columnModification.Value);
                     }
 
                     if (columnModification.UseOriginalValueParameter)
                     {
-                        commandBuilder.AddParameter(columnModification.OriginalParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                            columnModification.Property);
+                        commandBuilder.AddParameter(
+                            columnModification.OriginalParameterName,
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
                     }

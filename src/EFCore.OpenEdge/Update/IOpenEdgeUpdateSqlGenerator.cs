@@ -2,7 +2,7 @@
 
 namespace EntityFrameworkCore.OpenEdge.Update
 {
-    public interface IOpenEdgeUpdateSqlGenerator :IUpdateSqlGenerator
+    public interface IOpenEdgeUpdateSqlGenerator : IUpdateSqlGenerator
     {
     }
 }

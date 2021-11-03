@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Data.Odbc;
-using System.Linq;
-using System.Text;
-using EntityFrameworkCore.OpenEdge.Extensions;
+﻿using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Data.Odbc;
+using System.Linq;
+using System.Text;
 
 namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
 {
@@ -24,15 +23,15 @@ namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
             _logger = logger;
         }
 
-        public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             using (var connection = new OdbcConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
-        public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             var databaseModel = new DatabaseModel();
 

@@ -8,11 +8,9 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal
         public OpenEdgeSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
             : base(dependencies)
         {
-            
         }
 
         public override string StatementTerminator { get; } = "";
-
 
         public override void DelimitIdentifier(StringBuilder builder, string identifier)
         {
