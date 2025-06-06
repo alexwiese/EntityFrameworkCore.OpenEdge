@@ -9,6 +9,10 @@ using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 {
+    /*
+     * Transforms and optimizes the expression tree before SQL generation by extracting parameters,
+     * folding and evaluating constants, normalizing expressions, flattening subqueries, etc.
+     */
     public class OpenEdgeParameterExtractingExpressionVisitor : ParameterExtractingExpressionVisitor
     {
         public OpenEdgeParameterExtractingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter,
@@ -58,6 +62,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            // Handles edge cases. Apparently, 'Take' and 'Skip' can't be parameterized and must be evaluated
+            // for OpenEdge SQL ??
             if (methodCallExpression.Method.Name == "Take")
             {
                 return methodCallExpression;

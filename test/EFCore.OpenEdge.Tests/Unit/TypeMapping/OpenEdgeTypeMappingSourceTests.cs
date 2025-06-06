@@ -33,7 +33,7 @@ namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
                 new object[] { typeof(byte), "tinyint", DbType.Byte },
                 new object[] { typeof(bool), "bit", null },
                 new object[] { typeof(DateTime), "datetime", DbType.DateTime },
-                new object[] { typeof(DateTimeOffset), "datetime-tz", DbType.DateTimeOffset }, // Note: maps to datetime, not datetime-tz? Double check
+                new object[] { typeof(DateTimeOffset), "datetime-tz", DbType.DateTimeOffset },
                 new object[] { typeof(TimeSpan), "time", DbType.Time },
                 new object[] { typeof(decimal), "decimal", null },
                 new object[] { typeof(double), "double precision", null },

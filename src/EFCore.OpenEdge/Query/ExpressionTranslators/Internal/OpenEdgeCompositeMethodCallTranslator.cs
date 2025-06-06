@@ -7,12 +7,14 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
 {
     /*
-     * Handles method calls in LINQ expressions
-     *   // LINQ query
-     *   users.Where(u => u.Name.Contains("John"))
+     * Converts expression nodes to database specific SQL.
+     * Handles method expression in transformed LINQ expressions by expression visitors in previous steps.
+     * 
+     *   // Expression node
+     *   u.Name.Contains(@p0)
      *
-     *   // Translated to SQL query
-     *   SELECT * FROM Users WHERE Users.Name LIKE '%John%'
+     *   // Generated SQL fragment
+     *   "Name LIKE '%' + @p0 + '%'"
      */
     public class OpenEdgeCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {

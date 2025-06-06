@@ -21,12 +21,22 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
         {
             var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
 
+            // Register the parameter for later binding
             if (Sql.ParameterBuilder.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
                 var typeMapping
                     = Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
 
+                /*
+                 * What this essentially means is that a standard SQL query like this:
+                 *   WHERE Name = @p0 AND Age = @p1
+                 *
+                 * Needs to be converted to this (for OpenEdge): 
+                 *   WHERE Name = ? AND Age = ?
+                 *
+                 * The parameters are still tracked internally, but the SQL uses positional placeholders.
+                 */
                 Sql.AddParameter(
                     parameterExpression.Name,
                     parameterName,
@@ -36,7 +46,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
             // Named parameters not supported in the command text
             // Need to use '?' instead
-            Sql.Append("?");
+            Sql.Append("?"); // This appears to be OpenEdge specific!
 
             return parameterExpression;
         }

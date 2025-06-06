@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -9,6 +8,10 @@ using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace EntityFrameworkCore.OpenEdge.Query.Internal
 {
+    /*
+     * This class is responsible for coordinating the parameter extraction phase of query compilation.
+     * Orchestrates parameter extraction using OpenEdgeParameterExtractingExpressionVisitor visitor.
+     */
     public class OpenEdgeQueryModelGenerator : QueryModelGenerator
     {
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
