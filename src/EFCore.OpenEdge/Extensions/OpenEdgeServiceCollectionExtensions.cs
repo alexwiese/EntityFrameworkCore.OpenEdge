@@ -21,18 +21,32 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EntityFrameworkCore.OpenEdge.Extensions
 {
+    /*
+     * Contains configurations that make OpenEdge provider work with Entity Framework Core's dependency injection system.
+     * Essentially, when someone uses .UseOpenEdge(), this file describes all the OpenEdge-specific implementations
+     * that should be used instead of the default ones.
+     */
     public static class OpenEdgeServiceCollectionExtensions
     {
         public static IServiceCollection AddEntityFrameworkOpenEdge(this IServiceCollection serviceCollection)
         {
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
+                // Registers the main provider that EF Core uses to identify this as the OpenEdge provider
                 .TryAdd<IDatabaseProvider, DatabaseProvider<OpenEdgeOptionsExtension>>()
+                // Contains code/database first type mappings
                 .TryAdd<IRelationalTypeMappingSource, OpenEdgeTypeMappingSource>()
+                // Handles OpenEdge-specific SQL syntax
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
+                
+                // TODO: Add appropriate informative explanations for these
                 .TryAdd<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
                 .TryAdd<ISingletonUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
+                
+                // Batches multiple database operations together
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
+                
+                // TODO: Add appropriate informative explanations for these
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
                 .TryAdd<IRelationalResultOperatorHandler, OpenEdgeResultOperatorHandler>()
                 .TryAdd<IQueryModelGenerator, OpenEdgeQueryModelGenerator>()

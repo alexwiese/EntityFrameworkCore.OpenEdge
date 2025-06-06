@@ -4,6 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EntityFrameworkCore.OpenEdge.Infrastructure.Internal
 {
+    /*
+     * This instance gets added to the DbContextOptions internal collection.
+     * When DbContext is created, EF Core calls ApplyServices() and all the services are added to the service collection.
+     */
     public class OpenEdgeOptionsExtension : RelationalOptionsExtension
     {
         protected override RelationalOptionsExtension Clone()
@@ -13,7 +17,7 @@ namespace EntityFrameworkCore.OpenEdge.Infrastructure.Internal
 
         public override bool ApplyServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkOpenEdge();
+            services.AddEntityFrameworkOpenEdge(); // Registers ALL OpenEdge services
             return true;
         }
     }
