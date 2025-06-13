@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using EFCore.OpenEdge.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Moq;
 using Xunit;
 
 namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
@@ -18,10 +20,22 @@ namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
 
         public OpenEdgeTypeMappingSourceTests()
         {
-            var valueConverterSelector = new ValueConverterSelector(new ValueConverterSelectorDependencies());
-            var dependencies = new TypeMappingSourceDependencies(valueConverterSelector);
-            var relationalDependencies = new RelationalTypeMappingSourceDependencies();
+            var valueConverterSelector = CreateValueConverterSelector();
+            var plugins = Enumerable.Empty<ITypeMappingSourcePlugin>();
+            var relationalPlugins = Enumerable.Empty<IRelationalTypeMappingSourcePlugin>();
+            
+            var dependencies = new TypeMappingSourceDependencies(valueConverterSelector, plugins);
+            var relationalDependencies = new RelationalTypeMappingSourceDependencies(relationalPlugins);
+            
             _typeMappingSource = new OpenEdgeTypeMappingSource(dependencies, relationalDependencies);
+        }
+        
+        private static IValueConverterSelector CreateValueConverterSelector()
+        {
+            var mock = new Mock<IValueConverterSelector>();
+            mock.Setup(x => x.Select(It.IsAny<Type>(), It.IsAny<Type>()))
+                .Returns(Enumerable.Empty<ValueConverterInfo>());
+            return mock.Object;
         }
 
         public static IEnumerable<object[]> ClrTypeMappingData =>
