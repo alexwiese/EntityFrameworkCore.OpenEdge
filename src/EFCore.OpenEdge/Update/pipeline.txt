@@ -1,0 +1,166 @@
+﻿┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           EF CORE CHANGE TRACKING                               │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        1. CHANGE DETECTION                                      │
+│                                                                                 │
+│  User Code:                     EF Detects:                                     │
+│  ┌─────────────────────────┐    ┌─────────────────────────────────────────┐     │
+│  │ user.Name = "Updated";  │───▶│ Entity: User                            │     │
+│  │ context.SaveChanges();  │    │ State: Modified                         │     │
+│  └─────────────────────────┘    │ Changes: Name ("Old" → "New")           │     │
+│                                 └─────────────────────────────────────────┘     │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                    2. MODIFICATION COMMAND CREATION                             │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ ModificationCommand {                                                   │    │
+│  │   TableName: "Users",                                                   │    │
+│  │   Schema: "dbo",                                                        │    │
+│  │   EntityState: Modified,                                                │    │
+│  │   ColumnModifications: [                                                │    │
+│  │     { ColumnName: "Name", Value: "Updated", IsWrite: true },            │    │
+│  │     { ColumnName: "Id", Value: 1, IsCondition: true },                  │    │
+│  │     { ColumnName: "Name", OriginalValue: "Old", IsCondition: true }     │    │
+│  │   ]                                                                     │    │
+│  │ }                                                                       │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                      3. BATCH FACTORY CREATION                                  │
+│                    OpenEdgeModificationCommandBatchFactory                      │
+│                                                                                 │
+│  Dependencies Injected:                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ • IRelationalCommandBuilderFactory  ← Builds SQL commands               │    │
+│  │ • ISqlGenerationHelper              ← Identifier quoting, etc.          │    │
+│  │ • IUpdateSqlGenerator               ← Your OpenEdgeUpdateSqlGenerator   │    │
+│  │ • IRelationalValueBufferFactory     ← Result processing                 │    │
+│  │ • IDbContextOptions                 ← Configuration                     │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                 │
+│  Creates: OpenEdgeSingularModificationCommandBatch                              │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       4. BATCH PROCESSING                                       │
+│                 OpenEdgeSingularModificationCommandBatch                        │
+│                                                                                 │
+│  For Each ModificationCommand:                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ Step 4a: Add command to batch                                           │    │
+│  │   └─ ModificationCommands.Add(command)                                  │    │
+│  │                                                                         │    │
+│  │ Step 4b: Check if batch is full                                         │    │
+│  │   └─ Singular batch = always full after 1 command                       │    │
+│  │                                                                         │    │
+│  │ Step 4c: Mark batch ready for execution                                 │    │
+│  │   └─ Batch preparation complete, ready for SQL generation               │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        5. SQL GENERATION & STORAGE                              │
+│                     OpenEdgeUpdateSqlGenerator                                  │
+│                                                                                 │
+│  Called via: GetCommandText()                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ AppendUpdateOperation(StringBuilder, ModificationCommand, position)     │    │
+│  │                                                                         │    │
+│  │ ┌─────────────────────────────────────────────────────────────────────┐ │    │
+│  │ │ 5a. AppendUpdateCommandHeader()                                     │ │    │
+│  │ │     └─ Generates: "UPDATE Users SET "                               │ │    │
+│  │ │                                                                     │ │    │
+│  │ │ 5b. For each WriteOperation:                                        │ │    │
+│  │ │     └─ Appends: "Name = ?"                                          │ │    │
+│  │ │                                                                     │ │    │ 
+│  │ │ 5c. Append " WHERE "                                                │ │    │
+│  │ │                                                                     │ │    │
+│  │ │ 5d. For each ConditionOperation:                                    │ │    │
+│  │ │     └─ AppendWhereCondition()                                       │ │    │
+│  │ │         └─ Appends: "Id = ? AND Name = ?"                           │ │    │
+│  │ └─────────────────────────────────────────────────────────────────────┘ │    │
+│  │                                                                         │    │
+│  │ SQL Text Created: "UPDATE Users SET Name = ? WHERE Id = ? AND Name = ?" │    │
+│  │ Storage: Available via GetCommandText() for later retrieval             │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      6. COMMAND BUILDING                                         │
+│              OpenEdgeSingularModificationCommandBatch.CreateStoreCommand()       │
+│                                                                                  │
+│  ┌──────────────────────────────────────────────────────────────────────────┐    │
+│  │ 6a. Retrieve SQL Text                                                    │    │
+│  │     └─ sqlText = GetCommandText()                                        │    │
+│  │         └─ Returns: "UPDATE Users SET Name = ? WHERE Id = ? AND Name = ?"│    │
+│  │                                                                          │    │
+│  │ 6b. Create CommandBuilder                                                │    │
+│  │     └─ commandBuilder = factory.Create().Append(sqlText)                 │    │
+│  │                                                                          │    │
+│  │ 6c. Process Parameters                                                   │    │
+│  │     For each ColumnModification:                                         │    │
+│  │     ┌─────────────────────────────────────────────────────────────┐      │    │
+│  │     │ if (UseCurrentValueParameter):                              │      │    │
+│  │     │   commandBuilder.AddParameter("p0", "?", property)          │      │    │
+│  │     │   parameterValues["p0"] = "Updated"                         │      │    │
+│  │     │                                                             │      │    │
+│  │     │ if (UseOriginalValueParameter):                             │      │    │
+│  │     │   commandBuilder.AddParameter("p1", "?", property)          │      │    │
+│  │     │   parameterValues["p1"] = "Old"                             │      │    │
+│  │     └─────────────────────────────────────────────────────────────┘      │    │
+│  │                                                                          │    │
+│  │ 6d. Create RawSqlCommand (ONLY TIME IT'S CREATED)                        │    │
+│  │     └─ return new RawSqlCommand(commandBuilder.Build(), parameters)      │    │
+│  └──────────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────┬────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        7. FINAL COMMAND RESULT                                  │
+│                                                                                 │
+│  RawSqlCommand {                                                                │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ CommandText: "UPDATE Users SET Name = ? WHERE Id = ? AND Name = ?"      │    │
+│  │                                                                         │    │ 
+│  │ Parameters: [                                                           │    │
+│  │   { InvariantName: "p0", Name: "?", TypeMapping: StringTypeMapping },   │    │
+│  │   { InvariantName: "p1", Name: "?", TypeMapping: IntTypeMapping },      │    │
+│  │   { InvariantName: "p2", Name: "?", TypeMapping: StringTypeMapping }    │    │
+│  │ ],                                                                      │    │
+│  │                                                                         │    │
+│  │ ParameterValues: {                                                      │    │
+│  │   ["p0"] = "Updated",     // New value for SET clause                   │    │
+│  │   ["p1"] = 1,             // ID for WHERE clause                        │    │
+│  │   ["p2"] = "Old"          // Original value for WHERE clause            │    │
+│  │ }                                                                       │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│  }                                                                              │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         8. DATABASE EXECUTION                                   │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ OpenEdge Database Receives:                                             │    │
+│  │                                                                         │    │
+│  │ SQL: "UPDATE Users SET Name = ? WHERE Id = ? AND Name = ?"              │    │
+│  │ Parameters: ["Updated", 1, "Old"]                                       │    │
+│  │                                                                         │    │
+│  │ Executes as:                                                            │    │
+│  │ UPDATE Users SET Name = 'Updated' WHERE Id = 1 AND Name = 'Old'         │    │
+│  │                                                                         │    │
+│  │ Returns: Number of rows affected (0 or 1)                               │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────────────────┘

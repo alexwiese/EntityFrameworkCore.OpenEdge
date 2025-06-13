@@ -14,6 +14,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         {
         }
 
+        // OpenEdge workaround for limited concurrency support?
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
             commandStringBuilder
@@ -27,8 +28,10 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
 
+        // VALUES Clause Generation
         protected override void AppendValues(StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> operations)
         {
+            // OpenEdge preference for literals over parameters
             bool useLiterals = true;
 
             if (operations.Count > 0)
@@ -43,6 +46,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                         {
                             if (useLiterals)
                             {
+                                // Direct value embedding
                                 AppendSqlLiteral(sb, o.Value, o.Property);
                             }
                             else
@@ -94,6 +98,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     });
         }
 
+        // WHERE Clause Generation
         protected override void AppendWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification,
             bool useOriginalValue)
         {
@@ -122,6 +127,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
             }
         }
 
+        // Insert SQL Generation
         public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command,
             int commandPosition)
         {
@@ -136,9 +142,11 @@ namespace EntityFrameworkCore.OpenEdge.Update
                      
             AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
 
+            // No RETURNING clause, because there's no way to get the generated id?
             return ResultSetMapping.NoResultSet;
         }
 
+        // Update SQL Generation
         public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command,
             int commandPosition)
         {
