@@ -2,39 +2,70 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
 {
-    /*
-     * Converts expression nodes to database specific SQL.
-     * Handles method expression in transformed LINQ expressions by expression visitors in previous steps.
-     * 
-     *   // Expression node
-     *   u.Name.Contains(@p0)
-     *
-     *   // Generated SQL fragment
-     *   "Name LIKE '%' + @p0 + '%'"
-     */
-    public class OpenEdgeCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
+    /// <summary>
+    /// Container for OpenEdge-specific method call translators.
+    /// Updated for EF Core 3.0+ architecture.
+    /// </summary>
+    public class OpenEdgeCompositeMethodCallTranslator : IMethodCallTranslator
     {
-        // This is a CONTAINER that holds multiple specific translators.
-        // TODO: There are currently no custom translators, which is the direct reason of only basic crud and 
-        //       joins being supported. To extend the functionality, we need to add more translators.
-        //       For instance, OpenEdgeStringContainsTranslator that handles the Contains method.
-        private static readonly List<Type> _translatorsMethods
-            = GetTranslatorMethods<IMethodCallTranslator>().ToList();
+        private readonly List<IMethodCallTranslator> _translators;
 
-        public OpenEdgeCompositeMethodCallTranslator(RelationalCompositeMethodCallTranslatorDependencies dependencies)
-            : base(dependencies)
-            // Finds and instantiates ALL method call translators in the assembly
-            => AddTranslators(_translatorsMethods.Select(type => (IMethodCallTranslator)Activator.CreateInstance(type)));
+        public OpenEdgeCompositeMethodCallTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        {
+            // Get all method call translators in the assembly
+            var translatorTypes = GetTranslatorMethods<IMethodCallTranslator>().ToList();
+            
+            _translators = new List<IMethodCallTranslator>();
+            
+            // Instantiate translators that have parameterless constructors
+            foreach (var translatorType in translatorTypes)
+            {
+                var parameterlessConstructor = translatorType.GetConstructor(Type.EmptyTypes);
+                if (parameterlessConstructor != null)
+                {
+                    _translators.Add((IMethodCallTranslator)Activator.CreateInstance(translatorType));
+                }
+                else
+                {
+                    // Try constructor with ISqlExpressionFactory parameter
+                    var constructorWithFactory = translatorType.GetConstructor(new[] { typeof(ISqlExpressionFactory) });
+                    if (constructorWithFactory != null)
+                    {
+                        _translators.Add((IMethodCallTranslator)Activator.CreateInstance(translatorType, sqlExpressionFactory));
+                    }
+                }
+            }
+        }
 
-        public static IEnumerable<Type> GetTranslatorMethods<TInteface>()
+        public virtual SqlExpression Translate(
+            SqlExpression instance, 
+            MethodInfo method, 
+            IReadOnlyList<SqlExpression> arguments)
+        {
+            // Try each translator until one succeeds
+            foreach (var translator in _translators)
+            {
+                var result = translator.Translate(instance, method, arguments);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<Type> GetTranslatorMethods<TInterface>()
             => Assembly
                 .GetExecutingAssembly()
                 .GetTypes().Where(t =>
-                    t.GetInterfaces().Any(i => i == typeof(TInteface))
-                    && t.GetConstructors().Any(c => c.GetParameters().Length == 0));
+                    t.GetInterfaces().Any(i => i == typeof(TInterface))
+                    && !t.IsAbstract
+                    && !t.IsInterface);
     }
 }

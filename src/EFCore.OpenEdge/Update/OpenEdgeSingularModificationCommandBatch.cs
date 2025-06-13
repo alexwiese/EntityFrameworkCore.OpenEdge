@@ -8,10 +8,10 @@ namespace EntityFrameworkCore.OpenEdge.Update
     public class OpenEdgeSingularModificationCommandBatch : SingularModificationCommandBatch
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-
-        public OpenEdgeSingularModificationCommandBatch(IRelationalCommandBuilderFactory commandBuilderFactory, ISqlGenerationHelper sqlGenerationHelper, IUpdateSqlGenerator updateSqlGenerator, IRelationalValueBufferFactoryFactory valueBufferFactoryFactory) : base(commandBuilderFactory, sqlGenerationHelper, updateSqlGenerator, valueBufferFactoryFactory)
+        
+        public OpenEdgeSingularModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies) : base(dependencies)
         {
-            _commandBuilderFactory = commandBuilderFactory;
+            _commandBuilderFactory = dependencies.CommandBuilderFactory;
         }
 
         // Combines SQL text with parameter metadata
@@ -74,7 +74,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                          *   );
                          */
                         commandBuilder.AddParameter(columnModification.ParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                             columnModification.Property);
 
                         /*
@@ -92,7 +92,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     if (columnModification.UseOriginalValueParameter)
                     {
                         commandBuilder.AddParameter(columnModification.OriginalParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                             columnModification.Property);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);

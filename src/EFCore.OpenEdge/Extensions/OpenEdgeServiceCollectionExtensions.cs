@@ -1,19 +1,15 @@
 ﻿using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using EntityFrameworkCore.OpenEdge.Metadata.Conventions.Internal;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal;
-using EntityFrameworkCore.OpenEdge.Query.Internal;
-using EntityFrameworkCore.OpenEdge.Query.Sql.Internal;
+using EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal;
 using EntityFrameworkCore.OpenEdge.Storage;
 using EntityFrameworkCore.OpenEdge.Storage.Internal;
 using EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping;
 using EntityFrameworkCore.OpenEdge.Update;
 using EntityFrameworkCore.OpenEdge.Update.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -38,24 +34,21 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 // Handles OpenEdge-specific SQL syntax
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
-                
-                // TODO: Add appropriate informative explanations for these
                 .TryAdd<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
-                .TryAdd<ISingletonUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
-                
-                // Batches multiple database operations together
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
-                
-                // TODO: Add appropriate informative explanations for these
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
-                .TryAdd<IRelationalResultOperatorHandler, OpenEdgeResultOperatorHandler>()
-                .TryAdd<IQueryModelGenerator, OpenEdgeQueryModelGenerator>()
-
                 .TryAdd<IBatchExecutor, BatchExecutor>()
+                
+                .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
+                .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeQuerySqlGeneratorFactory>()
+                .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, OpenEdgeSqlTranslatingExpressionVisitorFactory>()
+                
+                // .TryAdd<ISingletonUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>() // ISingletonUpdateSqlGenerator has been removed
+                // .TryAdd<IRelationalResultOperatorHandler, OpenEdgeResultOperatorHandler>() // Supposedly no longer exists
+                // .TryAdd<IQueryModelGenerator, OpenEdgeQueryModelGenerator>() // Supposedly no longer exists
 
                 .TryAdd<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
-                .TryAdd<ICompositeMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>()
-                .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
+                .TryAdd<IMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>()
                 
                 .TryAddProviderSpecificServices(b => b
                     .TryAddScoped<IOpenEdgeUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()

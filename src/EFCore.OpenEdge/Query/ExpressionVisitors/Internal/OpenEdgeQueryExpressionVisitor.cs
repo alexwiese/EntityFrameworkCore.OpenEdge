@@ -1,30 +1,16 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 {
-    /*
-     * Transforms and optimizes the expression tree before SQL generation by extracting parameters,
-     * folding and evaluating constants, normalizing expressions, flattening subqueries, etc.
-     */
-    public class OpenEdgeParameterExtractingExpressionVisitor : ParameterExtractingExpressionVisitor
+    /// <summary>
+    /// Handles OpenEdge-specific expression transformations.
+    /// Migrated from OpenEdgeParameterExtractingExpressionVisitor.
+    /// </summary>
+    public class OpenEdgeQueryExpressionVisitor : ExpressionVisitor
     {
-        public OpenEdgeParameterExtractingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            IParameterValues parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            DbContext context,
-            bool parameterize, bool
-                generateContextAccessors = false)
-            : base(evaluatableExpressionFilter, parameterValues, logger, context, parameterize, generateContextAccessors)
-        {
-        }
-
+        // Your existing VisitNewMember logic
         protected Expression VisitNewMember(MemberExpression memberExpression)
         {
             if (memberExpression.Expression is ConstantExpression constant
@@ -41,14 +27,13 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
                         {
                             break;
                         }
-
                         return Expression.Constant(propertyInfo.GetValue(constant.Value));
                 }
             }
-
             return base.VisitMember(memberExpression);
         }
 
+        // Your existing VisitNew logic
         protected override Expression VisitNew(NewExpression node)
         {
             var memberArguments = node.Arguments
@@ -56,20 +41,15 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
                 .ToList();
 
             var newNode = node.Update(memberArguments);
-
             return newNode;
         }
 
+        // Your existing Take/Skip logic
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            // Handles edge cases. Apparently, 'Take' and 'Skip' can't be parameterized and must be evaluated
-            // for OpenEdge SQL ??
-            if (methodCallExpression.Method.Name == "Take")
-            {
-                return methodCallExpression;
-            }
-
-            if (methodCallExpression.Method.Name == "Skip")
+            // Prevents Take and Skip from being parameterized for OpenEdge
+            if (methodCallExpression.Method.Name == "Take" || 
+                methodCallExpression.Method.Name == "Skip")
             {
                 return methodCallExpression;
             }

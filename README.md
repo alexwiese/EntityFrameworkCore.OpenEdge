@@ -62,6 +62,10 @@ For a unique primary index that has multiple fields then you can do the followin
 
     modelBuilder.Entity<transaction>().HasKey("TransactionId", "ClientId", "SecondaryId");
 
+## TODO
+Implement the provider tests according to the specification.  
+Here's example of the test suite from SQL provider: [EFCore.SqlServer.FunctionalTests Github](https://github.com/dotnet/efcore/tree/main/test/EFCore.SqlServer.FunctionalTests).
+For more information, here's [Microsoft docs page](https://learn.microsoft.com/en-us/ef/core/providers/writing-a-provider#the-ef-core-specification-tests).
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge?ref=badge_large)

@@ -2,31 +2,30 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using EntityFrameworkCore.OpenEdge.Extensions;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 {
-    public class OpenEdgeSqlGenerator : DefaultQuerySqlGenerator
+    public class OpenEdgeSqlGenerator : QuerySqlGenerator
     {
         private bool _existsConditional;
 
-        public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies, SelectExpression selectExpression)
-            : base(dependencies, selectExpression)
+        public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies) : base(dependencies)
         {
         }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
+            var parameterName = Dependencies.SqlGenerationHelper.GenerateParameterName(parameterExpression.Name);
 
             // Register the parameter for later binding
-            if (Sql.ParameterBuilder.Parameters
+            if (Sql.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
                 var typeMapping
-                    = Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type);
+                    = Sql.TypeMappingSource.GetMapping(parameterExpression.Type);
 
                 /*
                  * What this essentially means is that a standard SQL query like this:
@@ -67,7 +66,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             return visitConditional;
         }
 
-        public override Expression VisitExists(ExistsExpression existsExpression)
+        protected override Expression VisitExists(ExistsExpression existsExpression)
         {
             // OpenEdge does not support WHEN EXISTS, only WHERE EXISTS
             // We need to SELECT 1 using WHERE EXISTS, then compare

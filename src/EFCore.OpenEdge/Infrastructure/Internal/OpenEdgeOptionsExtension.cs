@@ -1,24 +1,42 @@
-﻿using EntityFrameworkCore.OpenEdge.Extensions;
+﻿using System.Collections.Generic;
+using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EntityFrameworkCore.OpenEdge.Infrastructure.Internal
 {
-    /*
-     * This instance gets added to the DbContextOptions internal collection.
-     * When DbContext is created, EF Core calls ApplyServices() and all the services are added to the service collection.
-     */
+    /// <summary>
+    /// This instance gets added to the DbContextOptions internal collection.
+    /// When DbContext is created, EF Core calls ApplyServices() and all the services are added to the service collection.
+    /// </summary>
     public class OpenEdgeOptionsExtension : RelationalOptionsExtension
     {
-        protected override RelationalOptionsExtension Clone()
-        {
-            return new OpenEdgeOptionsExtension();
-        }
+        private DbContextOptionsExtensionInfo _info;
+        
+        public override DbContextOptionsExtensionInfo Info 
+            => _info ?? (_info = new OpenExtensionInfo(this));
 
-        public override bool ApplyServices(IServiceCollection services)
+        protected override RelationalOptionsExtension Clone() 
+            => new OpenEdgeOptionsExtension();
+
+        public override void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkOpenEdge();
+
+        // ✅ Required nested class for EF Core 3.0+
+        private sealed class OpenExtensionInfo : RelationalExtensionInfo
         {
-            services.AddEntityFrameworkOpenEdge(); // Registers ALL OpenEdge services
-            return true;
+            public OpenExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
+            {
+            }
+
+            public override bool IsDatabaseProvider => true;
+
+            public override string LogFragment => "using OpenEdge";
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                => debugInfo["OpenEdge"] = "1";
+            
         }
     }
 }

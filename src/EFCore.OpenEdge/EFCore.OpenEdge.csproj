@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
     <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
     <LangVersion>7.2</LangVersion>
@@ -28,8 +28,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[2.1.4,2.2)" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[2.1.4,2.2)" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
     <PackageReference Include="System.Data.Odbc" Version="4.5.0" />
   </ItemGroup>
 
