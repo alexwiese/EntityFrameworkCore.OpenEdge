@@ -91,7 +91,7 @@
 │  │ └─────────────────────────────────────────────────────────────────────┘ │    │
 │  │                                                                         │    │
 │  │ SQL Text Created: "UPDATE Users SET Name = ? WHERE Id = ? AND Name = ?" │    │
-│  │ Storage: Available via GetCommandText() for later retrieval             │    │
+│  │ Retrieved via GetCommandText()           │    │
 │  └─────────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────┬───────────────────────────────────────────────────────┘
                           │
