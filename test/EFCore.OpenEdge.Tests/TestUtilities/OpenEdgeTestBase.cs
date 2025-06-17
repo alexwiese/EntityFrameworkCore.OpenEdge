@@ -13,6 +13,8 @@ namespace EFCore.OpenEdge.Tests.TestUtilities
         protected ServiceProvider ServiceProvider { get; }
         protected string ConnectionString { get; }
         
+        private readonly ILoggerFactory _loggerFactory;
+        
         protected OpenEdgeTestBase()
         {
             Configuration = new ConfigurationBuilder()
@@ -21,6 +23,8 @@ namespace EFCore.OpenEdge.Tests.TestUtilities
 
             ConnectionString = Configuration.GetConnectionString("OpenEdgeConnection");
             
+            _loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            
             var services = new ServiceCollection();
             ConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
@@ -28,7 +32,6 @@ namespace EFCore.OpenEdge.Tests.TestUtilities
 
         protected void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(builder => builder.AddConsole());
             services.AddSingleton(Configuration);
         }
 
@@ -37,7 +40,7 @@ namespace EFCore.OpenEdge.Tests.TestUtilities
             return new DbContextOptionsBuilder<T>()
                 .UseOpenEdge(ConnectionString)
                 .EnableSensitiveDataLogging()
-                .UseLoggerFactory(ServiceProvider.GetService<ILoggerFactory>());
+                .UseLoggerFactory(_loggerFactory);
         }
 
         protected DbContextOptions CreateOptions()
@@ -45,7 +48,7 @@ namespace EFCore.OpenEdge.Tests.TestUtilities
             return new DbContextOptionsBuilder()
                 .UseOpenEdge(ConnectionString)
                 .EnableSensitiveDataLogging()
-                .UseLoggerFactory(ServiceProvider.GetService<ILoggerFactory>())
+                .UseLoggerFactory(_loggerFactory)
                 .Options;
         }
 
