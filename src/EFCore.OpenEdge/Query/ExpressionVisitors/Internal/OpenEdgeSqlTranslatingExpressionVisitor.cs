@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
@@ -17,7 +16,5 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         {
         }
 
-        // Add OpenEdge-specific expression translation overrides here
-        // For example, if OpenEdge has different function syntax
     }
 }

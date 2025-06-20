@@ -11,9 +11,14 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
     public class OpenEdgeSqlGenerator : QuerySqlGenerator
     {
         private bool _existsConditional;
-
-        public OpenEdgeSqlGenerator(QuerySqlGeneratorDependencies dependencies) : base(dependencies)
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
+            
+        public OpenEdgeSqlGenerator(
+            QuerySqlGeneratorDependencies dependencies,
+            IRelationalTypeMappingSource typeMappingSource
+            ) : base(dependencies)
         {
+            _typeMappingSource = typeMappingSource;
         }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
@@ -25,7 +30,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
                 var typeMapping
-                    = Sql.TypeMappingSource.GetMapping(parameterExpression.Type);
+                    = _typeMappingSource.GetMapping(parameterExpression.Type);
 
                 /*
                  * What this essentially means is that a standard SQL query like this:
@@ -66,29 +71,31 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             return visitConditional;
         }
 
-        protected override Expression VisitExists(ExistsExpression existsExpression)
-        {
-            // OpenEdge does not support WHEN EXISTS, only WHERE EXISTS
-            // We need to SELECT 1 using WHERE EXISTS, then compare
-            // the result to 1 to satisfy the conditional.
-
-            // OpenEdge requires that SELECT statements always include a table,
-            // so we SELECT from the _File metaschema table that always exists,
-            // selecting a single row that we know will always exist; the metaschema
-            // record for the _File metaschema table itself.
-            Sql.AppendLine(@"(SELECT 1 FROM pub.""_File"" f WHERE f.""_File-Name"" = '_File' AND EXISTS (");
-
-            using (Sql.Indent())
-            {
-                Visit(existsExpression.Subquery);
-            }
-
-            Sql.Append(")) = 1");
-
-            _existsConditional = true;
-
-            return existsExpression;
-        }
+        // TODO: Double check that this is still needed and create this functionality in an appropriate location
+        // protected override Expression VisitExists(ExistsExpression existsExpression)
+        // {
+        //     // Your OpenEdge-specific EXISTS logic here
+        //     // OpenEdge does not support WHEN EXISTS, only WHERE EXISTS
+        //     // We need to SELECT 1 using WHERE EXISTS, then compare
+        //     // the result to 1 to satisfy the conditional.
+        //
+        //     // OpenEdge requires that SELECT statements always include a table,
+        //     // so we SELECT from the _File metaschema table that always exists,
+        //     // selecting a single row that we know will always exist; the metaschema
+        //     // record for the _File metaschema table itself.
+        //     Sql.AppendLine(@"(SELECT 1 FROM pub.""_File"" f WHERE f.""_File-Name"" = '_File' AND EXISTS (");
+        //
+        //     using (Sql.Indent())
+        //     {
+        //         Visit(existsExpression.Subquery);
+        //     }
+        //
+        //     Sql.Append(")) = 1");
+        //
+        //     _existsConditional = true;
+        //
+        //     return existsExpression;
+        // }
 
         protected override void GenerateTop(SelectExpression selectExpression)
         {

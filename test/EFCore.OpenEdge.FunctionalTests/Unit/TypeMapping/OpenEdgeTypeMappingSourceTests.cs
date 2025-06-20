@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moq;
 using Xunit;
 
-namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
+namespace EFCore.OpenEdge.FunctionalTests.Unit.TypeMapping
 {
     public class OpenEdgeTypeMappingSourceTests
     {
@@ -20,8 +21,9 @@ namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
             var valueConverterSelector = CreateValueConverterSelector();
             var plugins = Enumerable.Empty<ITypeMappingSourcePlugin>();
             var relationalPlugins = Enumerable.Empty<IRelationalTypeMappingSourcePlugin>();
+            var jsonValueReaderWriterSource = new Mock<IJsonValueReaderWriterSource>().Object;
             
-            var dependencies = new TypeMappingSourceDependencies(valueConverterSelector, plugins);
+            var dependencies = new TypeMappingSourceDependencies(valueConverterSelector, jsonValueReaderWriterSource, plugins);
             var relationalDependencies = new RelationalTypeMappingSourceDependencies(relationalPlugins);
             
             _typeMappingSource = new OpenEdgeTypeMappingSource(dependencies, relationalDependencies);

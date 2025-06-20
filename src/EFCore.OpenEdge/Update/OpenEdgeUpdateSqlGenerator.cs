@@ -14,17 +14,12 @@ namespace EntityFrameworkCore.OpenEdge.Update
         {
         }
 
-        // OpenEdge workaround for limited concurrency support?
-        protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
+        private bool ShouldSkipConcurrencyCheck(IColumnModification columnModification)
         {
-            commandStringBuilder
-                .Append("1 = 1");
-        }
-
-        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
-        {
-            commandStringBuilder
-                .Append("1 = 1");
+            // Add logic here to determine when to skip concurrency checks
+            // This might depend on column type, table configuration, etc.
+            // For now returning this placeholder value
+            return false; 
         }
 
 
@@ -102,6 +97,14 @@ namespace EntityFrameworkCore.OpenEdge.Update
         protected override void AppendWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification,
             bool useOriginalValue)
         {
+            // OpenEdge workaround for limited concurrency support
+            // TODO: Check if this condition should be disabled (replaces the old AppendRowsAffectedWhereCondition and AppendIdentityWhereCondition logic)
+            if (ShouldSkipConcurrencyCheck(columnModification))
+            {
+                commandStringBuilder.Append("1 = 1");
+                return;
+            }
+            
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
 
             var parameterValue = useOriginalValue
@@ -128,7 +131,9 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
         // Insert SQL Generation
-        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, IReadOnlyModificationCommand command,
+        public override ResultSetMapping AppendInsertOperation(
+            StringBuilder commandStringBuilder, 
+            IReadOnlyModificationCommand command,
             int commandPosition)
         {
 
@@ -140,14 +145,16 @@ namespace EntityFrameworkCore.OpenEdge.Update
                 .Where(o => o.ColumnName != "rowid")
                 .ToList();
                      
-            AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
+            AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, new List<IColumnModification>());
 
             // No RETURNING clause, because there's no way to get the generated id?
-            return ResultSetMapping.NoResultSet;
+            return ResultSetMapping.NoResults;
         }
 
         // Update SQL Generation
-        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, IReadOnlyModificationCommand command,
+        public override ResultSetMapping AppendUpdateOperation(
+            StringBuilder commandStringBuilder, 
+            IReadOnlyModificationCommand command,
             int commandPosition)
         {
             var name = command.TableName;
@@ -156,10 +163,11 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
             var writeOperations = operations.Where(o => o.IsWrite).ToList();
             var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+            var readOperations = operations.Where(o => o.IsRead).ToList();
+            
+            AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, readOperations, conditionOperations);
 
-            AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
-
-            return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+            return ResultSetMapping.NoResults;
         }
     }
 }
