@@ -40,7 +40,8 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 .TryAdd<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
-                .TryAdd<IBatchExecutor, BatchExecutor>()
+                
+                // .TryAdd<IBatchExecutor, BatchExecutor>() // Became internal in EF Core 5+
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory,

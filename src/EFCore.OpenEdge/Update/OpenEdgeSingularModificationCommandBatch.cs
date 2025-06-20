@@ -66,16 +66,19 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     {
                         /*
                          * Adds parameter metadata to commandBuilder. For example:
-                         * 
+                         *
                          *  commandBuilder.AddParameter(
                          *    "p0",                          // Internal parameter name
-                         *     "?",                           // OpenEdge uses ? placeholders
-                         *     nameProperty                   // EF property metadata
+                         *     "?",                          // OpenEdge uses ? placeholders
+                         *     typeMapping,                  // Relational type mapping
+                         *     true                          // Nullable flag
                          *   );
                          */
-                        commandBuilder.AddParameter(columnModification.ParameterName,
+                        commandBuilder.AddParameter(
+                            columnModification.ParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         /*
                          * Adds actual parameter value to parameterValues. For example:
@@ -91,9 +94,11 @@ namespace EntityFrameworkCore.OpenEdge.Update
                     // Handle original value parameters (for UPDATE/DELETE WHERE clauses)
                     if (columnModification.UseOriginalValueParameter)
                     {
-                        commandBuilder.AddParameter(columnModification.OriginalParameterName,
+                        commandBuilder.AddParameter(
+                            columnModification.OriginalParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
                     }

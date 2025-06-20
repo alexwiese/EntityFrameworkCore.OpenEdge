@@ -29,7 +29,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
 
         // VALUES Clause Generation
-        protected override void AppendValues(StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> operations)
+        protected override void AppendValues(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<ColumnModification> operations)
         {
             // OpenEdge preference for literals over parameters
             bool useLiterals = true;

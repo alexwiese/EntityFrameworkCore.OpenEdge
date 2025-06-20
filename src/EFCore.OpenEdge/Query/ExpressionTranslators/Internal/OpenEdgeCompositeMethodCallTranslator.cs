@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -45,12 +47,13 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
         public virtual SqlExpression Translate(
             SqlExpression instance, 
             MethodInfo method, 
-            IReadOnlyList<SqlExpression> arguments)
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             // Try each translator until one succeeds
             foreach (var translator in _translators)
             {
-                var result = translator.Translate(instance, method, arguments);
+                var result = translator.Translate(instance, method, arguments, logger);
                 if (result != null)
                 {
                     return result;

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
@@ -18,11 +17,11 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         }
 
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
-            IModel model,
+            QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             => new OpenEdgeSqlTranslatingExpressionVisitor(
                 _dependencies,
-                model,
+                queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
     }
 }
