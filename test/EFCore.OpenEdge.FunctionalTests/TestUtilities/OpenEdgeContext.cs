@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace EFCore.OpenEdge.Tests.TestUtilities
+namespace EFCore.OpenEdge.FunctionalTests.TestUtilities
 {
     // Minimal DbContext implementation
     public class OpenEdgeContext : DbContext

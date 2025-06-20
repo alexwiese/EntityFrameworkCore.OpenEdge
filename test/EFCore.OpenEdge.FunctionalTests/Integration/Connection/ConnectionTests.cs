@@ -1,9 +1,8 @@
-﻿using EFCore.OpenEdge.Tests.TestUtilities;
+﻿using EFCore.OpenEdge.FunctionalTests.TestUtilities;
 using Xunit;
 
-namespace EFCore.OpenEdge.Tests.Integration.Connection
+namespace EFCore.OpenEdge.FunctionalTests.Integration.Connection
 {
-    [Trait("Category", TestCategories.Connection)]
     public class OpenConnectionTests : OpenEdgeTestBase
     {
         [Fact]

@@ -5,15 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using EFCore.OpenEdge.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moq;
 using Xunit;
 
 namespace EFCore.OpenEdge.Tests.Unit.TypeMapping
 {
-    [Trait("Category", TestCategories.Unit)]
-    [Trait("Category", TestCategories.TypeMapping)]
     public class OpenEdgeTypeMappingSourceTests
     {
         private readonly OpenEdgeTypeMappingSource _typeMappingSource;

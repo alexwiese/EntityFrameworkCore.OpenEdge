@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using Xunit;
 
-namespace EFCore.OpenEdge.Tests.TestUtilities
+namespace EFCore.OpenEdge.FunctionalTests.TestUtilities
 {
     public abstract class OpenEdgeTestBase : IDisposable
     {

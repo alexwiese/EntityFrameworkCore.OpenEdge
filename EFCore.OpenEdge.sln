@@ -6,8 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.OpenEdge", "src\EFCore.OpenEdge\EFCore.OpenEdge.csproj", "{21A6CF0F-EBB8-48CA-A843-ECFF81F94E0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0C88DD14-F956-CE84-757C-A364CCF449FC}"
+	ProjectSection(SolutionItems) = preProject
+		test\appsettings.json'.json = test\appsettings.json'.json
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.OpenEdge.Tests", "test\EFCore.OpenEdge.Tests\EFCore.OpenEdge.Tests.csproj", "{C2C2216F-6748-4CEC-84A5-2147C7C2E23F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.OpenEdge.FunctionalTests", "test\EFCore.OpenEdge.FunctionalTests\EFCore.OpenEdge.FunctionalTests.csproj", "{C2C2216F-6748-4CEC-84A5-2147C7C2E23F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
