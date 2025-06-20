@@ -8,7 +8,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         public OpenEdgeQueryTranslationPostprocessor(
             QueryTranslationPostprocessorDependencies dependencies,
             RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            RelationalQueryCompilationContext queryCompilationContext)
             : base(dependencies, relationalDependencies, queryCompilationContext)
         {
         }

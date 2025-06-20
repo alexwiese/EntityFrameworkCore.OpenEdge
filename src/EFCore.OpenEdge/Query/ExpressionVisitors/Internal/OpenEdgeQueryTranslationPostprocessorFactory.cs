@@ -23,6 +23,6 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             => new OpenEdgeQueryTranslationPostprocessor(
                 _dependencies,
                 _relationalDependencies,
-                queryCompilationContext);
+                (RelationalQueryCompilationContext) queryCompilationContext);
     }
 }
