@@ -21,7 +21,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
                 .Append("1 = 1");
         }
 
-        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
         {
             commandStringBuilder
                 .Append("1 = 1");
@@ -29,7 +29,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
 
         // VALUES Clause Generation
-        protected override void AppendValues(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<ColumnModification> operations)
+        protected override void AppendValues(StringBuilder commandStringBuilder, string name, string schema, IReadOnlyList<IColumnModification> operations)
         {
             // OpenEdge preference for literals over parameters
             bool useLiterals = true;
@@ -59,7 +59,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
             }
         }
 
-        private void AppendParameter(StringBuilder commandStringBuilder, ColumnModification modification)
+        private void AppendParameter(StringBuilder commandStringBuilder, IColumnModification modification)
         {
             commandStringBuilder.Append(modification.IsWrite ? "?" : "DEFAULT");
         }
@@ -75,7 +75,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
 
         protected override void AppendUpdateCommandHeader(StringBuilder commandStringBuilder, string name, string schema,
-            IReadOnlyList<ColumnModification> operations)
+            IReadOnlyList<IColumnModification> operations)
         {
             commandStringBuilder.Append("UPDATE ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
@@ -99,7 +99,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
         // WHERE Clause Generation
-        protected override void AppendWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification,
+        protected override void AppendWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification,
             bool useOriginalValue)
         {
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
@@ -128,7 +128,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
         // Insert SQL Generation
-        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command,
+        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, IReadOnlyModificationCommand command,
             int commandPosition)
         {
 
@@ -147,7 +147,7 @@ namespace EntityFrameworkCore.OpenEdge.Update
         }
 
         // Update SQL Generation
-        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command,
+        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, IReadOnlyModificationCommand command,
             int commandPosition)
         {
             var name = command.TableName;

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
     <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
     <LangVersion>9.0</LangVersion>
@@ -28,9 +28,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.17" />
-    <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.36" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.36" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
