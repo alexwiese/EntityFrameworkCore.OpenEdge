@@ -3,6 +3,7 @@ using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using EntityFrameworkCore.OpenEdge.Metadata.Conventions.Internal;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal;
+using EntityFrameworkCore.OpenEdge.Query.Sql.Internal;
 using EntityFrameworkCore.OpenEdge.Storage;
 using EntityFrameworkCore.OpenEdge.Storage.Internal;
 using EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping;
@@ -14,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EntityFrameworkCore.OpenEdge.Extensions
@@ -44,7 +44,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 
                 // .TryAdd<IBatchExecutor, BatchExecutor>() // Became internal in EF Core 5+
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
-                .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeQuerySqlGeneratorFactory>()
+                .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory,
                     OpenEdgeSqlTranslatingExpressionVisitorFactory>()
 

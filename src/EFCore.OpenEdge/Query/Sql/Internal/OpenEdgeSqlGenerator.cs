@@ -111,6 +111,26 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             }
         }
 
+        protected override void GenerateLimitOffset(SelectExpression selectExpression)
+        {
+            // OpenEdge has limited support for OFFSET/FETCH
+            // Only use TOP when there's no offset, otherwise skip limit entirely
+            // (This prevents the generation of FETCH FIRST ... ROWS ONLY)
+            
+            if (selectExpression.Offset != null)
+            {
+                // OpenEdge doesn't support OFFSET, so we can't generate proper SQL
+                // This will need client-side evaluation
+                throw new InvalidOperationException(
+                    "OpenEdge does not support OFFSET in queries. " +
+                    "Use Skip() with Take() only for client-side evaluation, " + 
+                    "or restructure your query to avoid Skip().");
+            }
+            
+            // If there's only a limit (no offset), GenerateTop() handles it
+            // Don't call base.GenerateLimitOffset() to avoid FETCH FIRST syntax
+        }
+
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if ((constantExpression.Type == typeof(DateTime) || constantExpression.Type == typeof(DateTime?))

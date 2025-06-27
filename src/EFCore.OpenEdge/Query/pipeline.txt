@@ -1,63 +1,124 @@
-﻿┌──────────────────┐
-│   1. LINQ Query  │ ← User writes: users.Where(u => u.Name.Contains("John")).Take(10)
+EF CORE 9.0 QUERY PIPELINE FOR OPENEDGE
+========================================
+
+## Phase 1 - LINQ Expression Tree Creation
+Input:  C# LINQ code
+Output: Expression Tree (internal .NET representation)
+
+User writes the following query:
+```
+var customers = context.Customers
+    .Where(c => c.Name.Contains("John") && c.Age > 25)
+    .OrderBy(c => c.Name)
+    .Take(10)
+    .ToList();
+```
+
+The output is still pure C# expression tree:
+```
+MethodCallExpression: Take(10)
+└── MethodCallExpression: OrderBy(c => c.Name)
+    └── MethodCallExpression: Where(c => c.Name.Contains("John") && c.Age > 25)
+```
+
+## Phase 2.1 - Query Translation Preprocessing
+Input:  Raw Expression Tree
+Output: Normalized Expression Tree
+Responsibility: IQueryTranslationPreprocessor (EF Core built-in)
+
+EF Core takes the expression tree and "normalizes" it:
+* Converts complex expressions into simpler ones
+* Resolves variables and closures
+* Optimizes the tree structure
+
+## Phase 2.2 - Provider-Specific Preprocessing
+Input:  Normalized Expression Tree
+Output: Provider-customized Expression Tree
+Responsibility: OpenEdgeQueryTranslationPostprocessor (NEEDS ATTENTION/IMPLEMENTATION)
+
+! This is the phase where the OpenEdge database provider gets involved for the first time !
+This phase is responsible for handling some database specific 'quirks' early. 
+For instance, OpenEdge does not support parameterized LIMIT clauses, so you need to convert Take(someVariable) into Take(10) with a literal value,
+and stop it from being parameterized.
+
+## Phase 3.1 - LINQ Method Translation
+Input:  Expression Tree with LINQ methods
+Output: SQL Expression Tree (not actual SQL text yet, but a structured representation of SQL concepts)
+Responsibility: IQueryableMethodTranslatingExpressionVisitor (EF Core)
+
+This is the phase where EF Core translates LINQ methods into SQL concepts.
+
+## Phase 3.2 - Method Call & Property Access Translation
+Input:  SQL Expression Tree with .NET method calls
+Output: SQL Expression Tree with database functions
+Responsibility: OpenEdgeSqlTranslatingExpressionVisitor (NEEDS ATTENTION/IMPLEMENTATION)
+
+# Phase 4 - SQL Generation
+Input:  SQL Expression Tree (database-specific)
+Output: Raw SQL string
+Responsibility: OpenEdgeSqlGenerator (NEEDS ATTENTION/IMPLEMENTATION)
+
+┌──────────────────┐
+│   1. LINQ Query  │
 └─────────┬────────┘
           │
           ▼
 ┌─────────────────────────────────┐
-│ 2. Query Model Generation       │
-│    OpenEdgeQueryModelGenerator  │ ← Orchestrates the compilation process
-│    └─ ExtractParameters()       │ ← Uses custom parameter visitor
-└─────────┬───────────────────────┘
-          │
-          ▼
-┌──────────────────────────────────┐
-│ 3. Expression Visitors           │
-│    (Tree Transformation)         │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │ OpenEdgeParameterExtracting- │ │ ← Custom visitor
-│ │ ExpressionVisitor            │ │ ← Handles Skip/Take, constants
-│ └──────────────────────────────┘ │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │ Other EF Core Visitors       │ │ ← Normalization, optimization
-│ │ (built-in)                   │ │
-│ └──────────────────────────────┘ │
-└─────────┬────────────────────────┘
-          │
-          ▼
-┌─────────────────────────────────┐
-│ 4. Result Operator Handling     │
-│    OpenEdgeResultOperatorHandler│ ← Handles .Count(), .Sum(), etc.
-│    └─ Count/Sum/Any/First...    │
-└─────────┬───────────────────────┘
-          │
-          ▼
-┌─────────────────────────────────┐
-│ 5. SQL Generation Phase         │
-│    OpenEdgeSqlGeneratorFactory  │ ← Creates the SQL generator
-│    └─ Creates...                │
+│ 2. Query Translation Phase      │
+│    (Pre-processing)             │
 │                                 │
 │ ┌─────────────────────────────┐ │
-│ │ OpenEdgeSqlGenerator        │ │ ← The main SQL generator
+│ │ IQueryTranslationPreprocessor │ │ ← EF Core's built-in preprocessing
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ OpenEdgeQueryTranslation-   │ │ ← **FIXED**: Handles ShapedQueryExpression
+│ │ Postprocessor               │ │ ← Uses OpenEdgeQueryExpressionVisitor
+│ │ └─ Visit QueryExpression    │ │ ← Processes query part separately
+│ │ └─ Visit ShaperExpression   │ │ ← Processes shaper part separately
+│ └─────────────────────────────┘ │
+└─────────┬───────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────┐
+│ 3. Query Compilation Phase      │
+│    (LINQ → SQL Expression Tree) │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ IQueryableMethodTranslating │ │ ← Translates LINQ methods
+│ │ ExpressionVisitor           │ │ ← Where, Select, OrderBy, etc.
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ OpenEdgeSqlTranslating-     │ │ ← **NEEDS IMPLEMENTATION**
+│ │ ExpressionVisitor           │ │ ← Method calls → SQL functions
+│ │ └─ Contains() → LIKE        │ │ ← String.Contains → LIKE '%..%'
+│ │ └─ StartsWith() → LIKE      │ │ ← String.StartsWith → LIKE '..%'
+│ │ └─ Math functions           │ │ ← Math.Abs, Math.Round, etc.
+│ └─────────────────────────────┘ │
+└─────────┬───────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────┐
+│ 4. SQL Generation Phase         │
+│    (Expression Tree → SQL Text) │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ OpenEdgeSqlGenerator        │ │  Main SQL generator
 │ │                             │ │
 │ │ ┌─────────────────────────┐ │ │
-│ │ │ Expression Translators  │ │ │ ← 🚨 MISSING custom translators!
-│ │ │ (Method calls → SQL)    │ │ │ ← Contains() → LIKE, etc.
-│ │ └─────────────────────────┘ │ │
-│ │                             │ │
-│ │ ┌─────────────────────────┐ │ │
-│ │ │ SQL Fragment Generation │ │ │ ← Custom overrides
+│ │ │ OpenEdge SQL Syntax     │ │ │ ← Custom SQL dialect handling
 │ │ │ • Parameters → ?        │ │ │ ← VisitParameter()
-│ │ │ • TOP without ()        │ │ │ ← GenerateTop()
+│ │ │ • TOP without ()        │ │ │ ← GenerateTop() 
 │ │ │ • DateTime → {ts...}    │ │ │ ← VisitConstant()
-│ │ │ • EXISTS workarounds    │ │ │ ← VisitExists()
+│ │ │ • LOGICAL → TRUE/FALSE  │ │ │ ← Boolean handling
+│ │ │ • No OFFSET support     │ │ │ ← Skip/Take limitations
 │ │ └─────────────────────────┘ │ │
 │ └─────────────────────────────┘ │
 └─────────┬───────────────────────┘
           │
           ▼
 ┌─────────────────────────────────┐
-│ 6. Final SQL String             │ ← SELECT TOP 10 * FROM Users WHERE Name = ?
-│    Ready for OpenEdge           │
+│ 5. Final SQL String             │ ← SELECT TOP 10 * FROM Users WHERE Name LIKE ?
+│    Ready for OpenEdge ODBC      │ ← Parameters: ['%John%']
 └─────────────────────────────────┘
