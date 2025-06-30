@@ -185,6 +185,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             product.InStock = true;
 
             var result = context.SaveChanges();
+            _output.WriteLine($"Result: {result}");
             
             result.Should().Be(1);
             

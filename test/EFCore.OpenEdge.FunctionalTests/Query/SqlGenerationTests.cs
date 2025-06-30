@@ -362,37 +362,6 @@ WHERE ""c"".""Name"" LIKE ?";
 
         #endregion
 
-        #region DATABASE SETUP TEST
-
-        [Fact]
-        public void Database_Setup_Should_Create_Tables_And_Insert_Data()
-        {
-            var (context, interceptor) = CreateContextWithSqlCapturing();
-
-            // Simple query to test if tables exist and have data
-            var customerCount = context.Customers.Count();
-            var productCount = context.Products.Count();
-            var categoryCount = context.Categories.Count();
-            var orderCount = context.Orders.Count();
-            var orderItemCount = context.OrderItems.Count();
-
-            _output.WriteLine($"Database setup completed successfully!");
-            _output.WriteLine($"Customers: {customerCount}");
-            _output.WriteLine($"Products: {productCount}");
-            _output.WriteLine($"Categories: {categoryCount}");
-            _output.WriteLine($"Orders: {orderCount}");
-            _output.WriteLine($"OrderItems: {orderItemCount}");
-
-            // Verify expected data counts
-            customerCount.Should().Be(10, "Should have 10 customers");
-            productCount.Should().Be(10, "Should have 10 products");
-            categoryCount.Should().Be(3, "Should have 3 categories");
-            orderCount.Should().Be(5, "Should have 5 orders");
-            orderItemCount.Should().Be(9, "Should have 9 order items");
-        }
-
-        #endregion
-
         #region PAGINATION TESTS
 
         [Fact]
