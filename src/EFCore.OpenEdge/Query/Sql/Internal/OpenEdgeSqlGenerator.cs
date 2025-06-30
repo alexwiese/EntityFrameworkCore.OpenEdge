@@ -111,24 +111,19 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             }
         }
 
-        protected override void GenerateLimitOffset(SelectExpression selectExpression)
+        protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            // OpenEdge has limited support for OFFSET/FETCH
-            // Only use TOP when there's no offset, otherwise skip limit entirely
-            // (This prevents the generation of FETCH FIRST ... ROWS ONLY)
-            
-            if (selectExpression.Offset != null)
+            // Handle COUNT(*) to cast result to INT to match EF Core expectations. This ensures that 'COUNT(*)' function is wrapped inside 'CAST (... AS INT)'.
+            // The generated SQL will now be 'CAST(COUNT(*) AS INT)'
+            if (string.Equals(sqlFunctionExpression.Name, "COUNT", StringComparison.OrdinalIgnoreCase))
             {
-                // OpenEdge doesn't support OFFSET, so we can't generate proper SQL
-                // This will need client-side evaluation
-                throw new InvalidOperationException(
-                    "OpenEdge does not support OFFSET in queries. " +
-                    "Use Skip() with Take() only for client-side evaluation, " + 
-                    "or restructure your query to avoid Skip().");
+                Sql.Append("CAST(");
+                base.VisitSqlFunction(sqlFunctionExpression);
+                Sql.Append(" AS INT)");
+                return sqlFunctionExpression;
             }
             
-            // If there's only a limit (no offset), GenerateTop() handles it
-            // Don't call base.GenerateLimitOffset() to avoid FETCH FIRST syntax
+            return base.VisitSqlFunction(sqlFunctionExpression);
         }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)

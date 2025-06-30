@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,5 +23,11 @@ namespace EFCore.OpenEdge.FunctionalTests.Query.Models
         public string Description { get; set; }
         
         public bool InStock { get; set; }
+
+        // Navigation property for category
+        public virtual Category Category { get; set; }
+
+        // Navigation property for order items
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

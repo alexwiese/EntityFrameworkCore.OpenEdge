@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,10 +24,12 @@ namespace EFCore.OpenEdge.FunctionalTests.Query.Models
 
         public bool IsActive { get; set; }
 
+        // Navigation property for orders
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
         public override string ToString()
         {
             return $"Customer {{ Id: {Id}, Name: {Name}, Email: {Email}, Age: {Age}, City: {City}, IsActive: {IsActive} }}";
         }
-
     }
 }

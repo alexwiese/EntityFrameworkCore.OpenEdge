@@ -7,6 +7,9 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         public BasicQueryContext(DbContextOptions<BasicQueryContext> options) : base(options)
         {
@@ -15,25 +18,27 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            // Configure entities for OpenEdge
-            modelBuilder.Entity<Customer>(entity =>
-            {
-                entity.ToTable("CUSTOMERS_TEST_PROVIDER", "PUB");
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Email).HasMaxLength(100);
-                entity.Property(e => e.City).HasMaxLength(50);
-            });
 
-            modelBuilder.Entity<Product>(entity =>
-            {
-                entity.ToTable("PRODUCTS_TEST_PROVIDER", "PUB");
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
-                entity.Property(e => e.Description).HasMaxLength(500);
-            });
+            // Configure relationships
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId);
+
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany(p => p.OrderItems)
+                .HasForeignKey(oi => oi.ProductId);
         }
     }
 }

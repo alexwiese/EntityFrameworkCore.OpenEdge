@@ -52,28 +52,6 @@ namespace EFCore.OpenEdge.FunctionalTests.TestUtilities
                 .Options;
         }
 
-        /// <summary>
-        /// Tests basic connection functionality similar to your example
-        /// </summary>
-        protected void TestBasicConnection()
-        {
-            // Arrange
-            var contextOptions = CreateOptions();
-                
-            using (var context = new OpenEdgeContext(contextOptions))
-            {
-                // Act
-                var connection = context.Database.GetDbConnection();
-                connection.Open();
-                
-                // Assert
-                Assert.NotNull(connection.Database);
-                Assert.Equal(System.Data.ConnectionState.Open, connection.State);
-                
-                connection.Close();
-            }
-        }
-
         public virtual void Dispose()
         {
             ServiceProvider?.Dispose();
