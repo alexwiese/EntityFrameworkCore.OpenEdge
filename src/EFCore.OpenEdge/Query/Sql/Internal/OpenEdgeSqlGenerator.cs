@@ -99,15 +99,77 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
         protected override void GenerateTop(SelectExpression selectExpression)
         {
-            if (selectExpression.Limit != null
-                && selectExpression.Offset == null)
+            // OpenEdge: TOP clause cannot be combined with OFFSET/FETCH clauses
+            // Only use TOP if there's no limit/offset that will be handled by GenerateLimitOffset
+            // TOP is only used when there's a limit but no offset, and we're not using OFFSET/FETCH
+            
+            // Don't generate TOP - let GenerateLimitOffset handle all limit/offset cases
+            // This avoids the conflict between TOP and FETCH clauses
+        }
+
+        protected override void GenerateLimitOffset(SelectExpression selectExpression)
+        {
+            // https://docs.progress.com/bundle/openedge-sql-reference/page/OFFSET-and-FETCH-clauses.html
+            if (selectExpression.Offset != null || selectExpression.Limit != null)
             {
-                // OpenEdge doesn't allow braces around the limit
-                Sql.Append("TOP ");
+                if (selectExpression.Offset != null)
+                {
+                    Sql.AppendLine()
+                        .Append("OFFSET ");
 
-                Visit(selectExpression.Limit);
+                    // OpenEdge requires literal values in OFFSET/FETCH, not parameters
+                    VisitLimitOffsetExpression(selectExpression.Offset);
 
-                Sql.Append(" ");
+                    Sql.Append(" ROWS");
+                }
+
+                if (selectExpression.Limit != null)
+                {
+                    if (selectExpression.Offset == null)
+                    {
+                        Sql.AppendLine();
+                    }
+                    else
+                    {
+                        Sql.Append(" ");
+                    }
+
+                    // Use FETCH FIRST when no offset, FETCH NEXT when there is an offset
+                    if (selectExpression.Offset == null)
+                    {
+                        Sql.Append("FETCH FIRST ");
+                    }
+                    else
+                    {
+                        Sql.Append("FETCH NEXT ");
+                    }
+
+                    // OpenEdge requires literal values in OFFSET/FETCH, not parameters
+                    VisitLimitOffsetExpression(selectExpression.Limit);
+
+                    Sql.Append(" ROWS ONLY");
+                }
+            }
+        }
+
+        private void VisitLimitOffsetExpression(SqlExpression expression)
+        {
+            // OpenEdge doesn't support parameters in OFFSET/FETCH clauses
+            // We need to handle SqlParameterExpression specially
+            if (expression is SqlParameterExpression parameterExpression)
+            {
+                // For OFFSET/FETCH, we need literal values, not parameters
+                // This is a limitation - we can't get actual parameter values at SQL generation time
+                // We'll need to use a different approach or handle this at a higher level
+                throw new InvalidOperationException(
+                    "OpenEdge does not support parameterized OFFSET/FETCH clauses. " +
+                    "The OFFSET and FETCH values must be literal constants. " +
+                    "Consider using a different query pattern or handling pagination at the application level.");
+            }
+            else
+            {
+                // For non-parameter expressions (like constants), use normal Visit
+                Visit(expression);
             }
         }
 

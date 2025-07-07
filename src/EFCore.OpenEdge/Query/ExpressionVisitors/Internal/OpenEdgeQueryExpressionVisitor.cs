@@ -10,7 +10,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
     /// </summary>
     public class OpenEdgeQueryExpressionVisitor : ExpressionVisitor
     {
-        // Your existing VisitNewMember logic
+        // Existing VisitNewMember logic
         protected Expression VisitNewMember(MemberExpression memberExpression)
         {
             if (memberExpression.Expression is ConstantExpression constant
@@ -33,7 +33,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             return base.VisitMember(memberExpression);
         }
 
-        // Your existing VisitNew logic
+        // Existing VisitNew logic
         protected override Expression VisitNew(NewExpression node)
         {
             var memberArguments = node.Arguments
@@ -44,7 +44,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             return newNode;
         }
 
-        // Your existing Take/Skip logic
+        // Existing VisitMethodCall logic
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             // Prevents Take and Skip from being parameterized for OpenEdge

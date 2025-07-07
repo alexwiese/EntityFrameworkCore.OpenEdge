@@ -111,8 +111,6 @@ Responsibility: OpenEdgeSqlGenerator (NEEDS ATTENTION/IMPLEMENTATION)
 │ │ │ • Parameters → ?        │ │ │ ← VisitParameter()
 │ │ │ • TOP without ()        │ │ │ ← GenerateTop() 
 │ │ │ • DateTime → {ts...}    │ │ │ ← VisitConstant()
-│ │ │ • LOGICAL → TRUE/FALSE  │ │ │ ← Boolean handling
-│ │ │ • No OFFSET support     │ │ │ ← Skip/Take limitations
 │ │ └─────────────────────────┘ │ │
 │ └─────────────────────────────┘ │
 └─────────┬───────────────────────┘

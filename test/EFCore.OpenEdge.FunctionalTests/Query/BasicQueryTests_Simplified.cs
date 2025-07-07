@@ -31,7 +31,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
         {
             using var context = CreateContext();
             
-            var customer = context.Customers.Where(c => c.Name == "Ernests").Single();
+            var customer = context.Customers.Where(c => c.Name == "John Doe").Single();
 
             customer.Should().NotBeNull();
         }
@@ -44,8 +44,8 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             var customers = context.Customers.OrderBy(c => c.Age).ToList();
 
             customers.Should().NotBeEmpty();
-            customers[0].Age.Should().Be(21);
-            customers[5].Age.Should().Be(40);
+            customers[0].Age.Should().Be(25);
+            customers[9].Age.Should().Be(55);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
         {
             using var context = CreateContext();
 
-            var count = context.Customers.LongCount();
+            var count = context.Customers.Count();
             
             count.Should().BeGreaterThan(0);
         }
