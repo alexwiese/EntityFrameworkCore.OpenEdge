@@ -59,7 +59,8 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 
                 .TryAddProviderSpecificServices(b => b
                     .TryAddScoped<IOpenEdgeRelationalConnection, OpenEdgeRelationalConnection>()
-                    .TryAddSingleton<IMemberTranslator, OpenEdgeCompositeMemberTranslator>());
+                    // .TryAddSingleton<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
+                    );
 
             builder.TryAddCoreServices();
             
