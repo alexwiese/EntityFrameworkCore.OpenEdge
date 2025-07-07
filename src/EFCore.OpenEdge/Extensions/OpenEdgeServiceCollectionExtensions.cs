@@ -1,4 +1,4 @@
-﻿using EntityFrameworkCore.OpenEdge.Diagnostics.Internal;
+using EntityFrameworkCore.OpenEdge.Diagnostics.Internal;
 using EntityFrameworkCore.OpenEdge.Infrastructure.Internal;
 using EntityFrameworkCore.OpenEdge.Metadata.Conventions.Internal;
 using EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal;
@@ -37,11 +37,10 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 // Handles OpenEdge-specific SQL syntax
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
-                .TryAdd<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
                 .TryAdd<IRelationalDatabaseCreator, OpenEdgeDatabaseCreator>()
-                
+
                 // .TryAdd<IBatchExecutor, BatchExecutor>() // Became internal in EF Core 5+
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
@@ -55,14 +54,18 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 // These need to go in provider specific?
                 // .TryAdd<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
                 // .TryAdd<IMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>()
+
+                .TryAdd<IMethodCallTranslatorProvider, OpenEdgeMethodCallTranslatorProvider>()
                 
                 .TryAddProviderSpecificServices(b => b
-                    .TryAddScoped<IOpenEdgeUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>()
                     .TryAddScoped<IOpenEdgeRelationalConnection, OpenEdgeRelationalConnection>()
-                    .TryAddSingleton<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
-                    .TryAddSingleton<IMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>());
+                    .TryAddSingleton<IMemberTranslator, OpenEdgeCompositeMemberTranslator>());
 
             builder.TryAddCoreServices();
+            
+            // Force registration of our UpdateSqlGenerator after all other services
+            serviceCollection.AddScoped<IUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>();
+            
             return serviceCollection;
         }
     }

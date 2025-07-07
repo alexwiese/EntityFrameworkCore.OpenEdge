@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EntityFrameworkCore.OpenEdge.Extensions;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Update;
 
 namespace EntityFrameworkCore.OpenEdge.Update
 {
-    public class OpenEdgeUpdateSqlGenerator : UpdateSqlGenerator, IOpenEdgeUpdateSqlGenerator
+    public class OpenEdgeUpdateSqlGenerator : UpdateSqlGenerator
     {
         public OpenEdgeUpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies) : base(dependencies)
         {
@@ -134,8 +134,11 @@ namespace EntityFrameworkCore.OpenEdge.Update
         public override ResultSetMapping AppendInsertOperation(
             StringBuilder commandStringBuilder, 
             IReadOnlyModificationCommand command,
-            int commandPosition)
+            int commandPosition,
+            out bool requiresTransaction)
         {
+            // TODO: Double check this?!
+            requiresTransaction = false;
 
             var name = command.TableName;
             var schema = command.Schema;
@@ -146,8 +149,6 @@ namespace EntityFrameworkCore.OpenEdge.Update
                 .ToList();
                      
             AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, new List<IColumnModification>());
-
-            // No RETURNING clause, because there's no way to get the generated id?
             return ResultSetMapping.NoResults;
         }
 
@@ -155,17 +156,49 @@ namespace EntityFrameworkCore.OpenEdge.Update
         public override ResultSetMapping AppendUpdateOperation(
             StringBuilder commandStringBuilder, 
             IReadOnlyModificationCommand command,
-            int commandPosition)
+            int commandPosition,
+            out bool requiresTransaction)
         {
+            // DEBUG: Add comment to verify our code is running  
+            commandStringBuilder.AppendLine("/* OpenEdge Custom Update */");
+            
+            // TODO: Double check this?!
+            requiresTransaction = false;
+            
             var name = command.TableName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToList();
             var conditionOperations = operations.Where(o => o.IsCondition).ToList();
-            var readOperations = operations.Where(o => o.IsRead).ToList();
+
+            // Generate UPDATE command without RETURNING clause. EF Core internally uses sql statement like 'RETURNING 1' to verify that such operation succeeds, for example,
+            // a query would look like: 'UPDATE products SET name = 'New Name' WHERE id = 123 RETURNING 1', however, OpenEdge does not support RETURNING clause, so we need to use a workaround to omit it
+            AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations); // "UPDATE table SET column = ?"
+            AppendWhereClause(commandStringBuilder, conditionOperations); // "WHERE condition"
+
+            return ResultSetMapping.NoResults;
+        }
+
+        // Delete SQL Generation
+        public override ResultSetMapping AppendDeleteOperation(
+            StringBuilder commandStringBuilder, 
+            IReadOnlyModificationCommand command,
+            int commandPosition,
+            out bool requiresTransaction)
+        {
+            // TODO: Double check this?!
+            requiresTransaction = false;
             
-            AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, readOperations, conditionOperations);
+            var name = command.TableName;
+            var schema = command.Schema;
+            var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
+
+            // Generate DELETE command without RETURNING clause. EF Core internally uses sql statement like 'RETURNING 1' to verify that such operation succeeds, for example,
+            // a query would look like: 'UPDATE products SET name = 'New Name' WHERE id = 123 RETURNING 1', however, OpenEdge does not support RETURNING clause, so we need to use a workaround to omit it
+            commandStringBuilder.Append("DELETE FROM ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
+            AppendWhereClause(commandStringBuilder, conditionOperations);
 
             return ResultSetMapping.NoResults;
         }

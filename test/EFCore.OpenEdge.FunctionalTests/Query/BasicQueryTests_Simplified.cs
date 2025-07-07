@@ -30,8 +30,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
         public void CanExecuteBasicWhere()
         {
             using var context = CreateContext();
-
-            // Get any customer to test WHERE functionality
+            
             var customer = context.Customers.Where(c => c.Name == "Ernests").Single();
 
             customer.Should().NotBeNull();
