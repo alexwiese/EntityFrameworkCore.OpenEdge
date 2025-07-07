@@ -118,7 +118,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                         .Append("OFFSET ");
 
                     // OpenEdge requires literal values in OFFSET/FETCH, not parameters
-                    VisitLimitOffsetExpression(selectExpression.Offset);
+                    Visit(selectExpression.Offset);
 
                     Sql.Append(" ROWS");
                 }
@@ -145,31 +145,10 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
                     }
 
                     // OpenEdge requires literal values in OFFSET/FETCH, not parameters
-                    VisitLimitOffsetExpression(selectExpression.Limit);
+                    Visit(selectExpression.Limit);
 
                     Sql.Append(" ROWS ONLY");
                 }
-            }
-        }
-
-        private void VisitLimitOffsetExpression(SqlExpression expression)
-        {
-            // OpenEdge doesn't support parameters in OFFSET/FETCH clauses
-            // We need to handle SqlParameterExpression specially
-            if (expression is SqlParameterExpression parameterExpression)
-            {
-                // For OFFSET/FETCH, we need literal values, not parameters
-                // This is a limitation - we can't get actual parameter values at SQL generation time
-                // We'll need to use a different approach or handle this at a higher level
-                throw new InvalidOperationException(
-                    "OpenEdge does not support parameterized OFFSET/FETCH clauses. " +
-                    "The OFFSET and FETCH values must be literal constants. " +
-                    "Consider using a different query pattern or handling pagination at the application level.");
-            }
-            else
-            {
-                // For non-parameter expressions (like constants), use normal Visit
-                Visit(expression);
             }
         }
 

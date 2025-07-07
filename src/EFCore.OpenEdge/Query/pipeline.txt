@@ -53,8 +53,19 @@ Input:  SQL Expression Tree with .NET method calls
 Output: SQL Expression Tree with database functions
 Responsibility: OpenEdgeSqlTranslatingExpressionVisitor (NEEDS ATTENTION/IMPLEMENTATION)
 
-# Phase 4 - SQL Generation
-Input:  SQL Expression Tree (database-specific)
+# Phase 4 - Parameter-Based SQL Processing
+Input:  SQL Expression Tree with parameter placeholders
+Output: SQL Expression Tree with inlined values (for OFFSET/FETCH only)
+Responsibility: OpenEdgeParameterBasedSqlProcessor
+
+This is the "magic" intermediate stage that has access to both the query expression tree 
+and the actual parameter values. For OpenEdge, this stage:
+* Finds OFFSET/FETCH SqlParameterExpression nodes
+* Replaces them with SqlConstantExpression containing literal values
+* Ensures OpenEdge gets "OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY" instead of "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"
+
+# Phase 5 - SQL Generation
+Input:  SQL Expression Tree (database-specific, with inlined OFFSET/FETCH values)
 Output: Raw SQL string
 Responsibility: OpenEdgeSqlGenerator (NEEDS ATTENTION/IMPLEMENTATION)
 
@@ -100,7 +111,22 @@ Responsibility: OpenEdgeSqlGenerator (NEEDS ATTENTION/IMPLEMENTATION)
           │
           ▼
 ┌─────────────────────────────────┐
-│ 4. SQL Generation Phase         │
+│ 4. Parameter-Based SQL Phase    │
+│    (Parameter Value Inlining)   │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ OpenEdgeParameterBasedSql-  │ │ ← **IMPLEMENTED**
+│ │ Processor                   │ │ ← Has access to parameter values
+│ │ └─ OffsetValueInlining-     │ │ ← Finds OFFSET/FETCH parameters
+│ │    ExpressionVisitor        │ │ ← Replaces with literal values
+│ │ └─ SqlParameterExpression   │ │ ← → SqlConstantExpression
+│ │    → SqlConstantExpression  │ │ ← OFFSET ? → OFFSET 5
+│ └─────────────────────────────┘ │
+└─────────┬───────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────┐
+│ 5. SQL Generation Phase         │
 │    (Expression Tree → SQL Text) │
 │                                 │
 │ ┌─────────────────────────────┐ │
@@ -111,12 +137,13 @@ Responsibility: OpenEdgeSqlGenerator (NEEDS ATTENTION/IMPLEMENTATION)
 │ │ │ • Parameters → ?        │ │ │ ← VisitParameter()
 │ │ │ • TOP without ()        │ │ │ ← GenerateTop() 
 │ │ │ • DateTime → {ts...}    │ │ │ ← VisitConstant()
+│ │ │ • Inlined OFFSET/FETCH  │ │ │ ← Literal values from Phase 4
 │ │ └─────────────────────────┘ │ │
 │ └─────────────────────────────┘ │
 └─────────┬───────────────────────┘
           │
           ▼
 ┌─────────────────────────────────┐
-│ 5. Final SQL String             │ ← SELECT TOP 10 * FROM Users WHERE Name LIKE ?
-│    Ready for OpenEdge ODBC      │ ← Parameters: ['%John%']
+│ 6. Final SQL String             │ ← SELECT * FROM Users WHERE Name LIKE ? ORDER BY Id OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY
+│    Ready for OpenEdge ODBC      │ ← Parameters: ['%John%'] (OFFSET/FETCH values are inlined, not parameterized)
 └─────────────────────────────────┘

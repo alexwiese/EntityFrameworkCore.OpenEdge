@@ -43,6 +43,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
 
                 // .TryAdd<IBatchExecutor, BatchExecutor>() // Became internal in EF Core 5+
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
+                .TryAdd<IRelationalParameterBasedSqlProcessorFactory, OpenEdgeParameterBasedSqlProcessorFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory,
                     OpenEdgeSqlTranslatingExpressionVisitorFactory>()
