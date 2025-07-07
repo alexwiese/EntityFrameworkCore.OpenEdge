@@ -46,7 +46,6 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         #nullable enable
         private readonly IReadOnlyDictionary<string, object?> _parameterValues;
 
-        public bool WasChanged { get; private set; }
 
         public OffsetValueInliningExpressionVisitor(
             ISqlExpressionFactory sqlExpressionFactory,
@@ -73,7 +72,6 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 
                 if (newOffset != selectExpression.Offset || newLimit != selectExpression.Limit)
                 {
-                    WasChanged = true;
                     // Create a new SelectExpression with the updated, inlined values
                     return selectExpression.Update(
                         selectExpression.Tables,
