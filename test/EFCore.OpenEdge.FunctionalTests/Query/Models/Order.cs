@@ -10,21 +10,26 @@ namespace EFCore.OpenEdge.FunctionalTests.Query.Models
     {
         [Key]
         public int Id { get; set; }
-        
+
         [Required]
         public int CustomerId { get; set; }
-        
+
         [Required]
         public DateTime OrderDate { get; set; }
-        
+
         [Column(TypeName = "decimal(10,2)")]
         public decimal TotalAmount { get; set; }
-        
+
         [MaxLength(50)]
         public string Status { get; set; }
 
         // Navigation properties
         public virtual Customer Customer { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        
+        public override string ToString()
+        {
+            return $"Order {{ Id: {Id}, CustomerId: {CustomerId}, OrderDate: {OrderDate}, TotalAmount: {TotalAmount}, Status: {Status} }}";
+        }
     }
 }

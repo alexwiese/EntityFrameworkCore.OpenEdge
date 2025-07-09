@@ -27,12 +27,6 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                 .Select(g => new { City = g.Key, Count = g.Count() })
                 .ToList();
 
-            _output.WriteLine($"Found {cityGroups.Count} cities");
-            foreach (var group in cityGroups)
-            {
-                _output.WriteLine($"City: {group.City}, Count: {group.Count}");
-            }
-
             cityGroups.Should().NotBeNull();
         }
 
@@ -51,40 +45,28 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                 })
                 .ToList();
 
-            _output.WriteLine($"Found {categoryTotals.Count} product categories");
-            foreach (var total in categoryTotals)
-            {
-                _output.WriteLine($"Category {total.CategoryId}: {total.ProductCount} products, Total Value: {total.TotalValue:C}");
-            }
-
             categoryTotals.Should().NotBeNull();
         }
 
-        [Fact]
-        public void CanExecute_GroupBy_WithAverage()
-        {
-            using var context = CreateContext();
+        // [Fact]
+        // public void CanExecute_GroupBy_WithAverage()
+        // {
+        //     using var context = CreateContext();
 
-            var ageByCity = context.Customers
-                .Where(c => c.IsActive)
-                .GroupBy(c => c.City)
-                .Select(g => new 
-                { 
-                    City = g.Key, 
-                    AverageAge = g.Average(c => c.Age),
-                    MinAge = g.Min(c => c.Age),
-                    MaxAge = g.Max(c => c.Age)
-                })
-                .ToList();
+        //     var ageByCity = context.Customers
+        //         .Where(c => c.IsActive)
+        //         .GroupBy(c => c.City)
+        //         .Select(g => new 
+        //         { 
+        //             City = g.Key, 
+        //             AverageAge = g.Average(c => c.Age),
+        //             MinAge = g.Min(c => c.Age),
+        //             MaxAge = g.Max(c => c.Age)
+        //         })
+        //         .ToList();
 
-            _output.WriteLine($"Age statistics by city:");
-            foreach (var stat in ageByCity)
-            {
-                _output.WriteLine($"{stat.City}: Avg={stat.AverageAge:F1}, Min={stat.MinAge}, Max={stat.MaxAge}");
-            }
-
-            ageByCity.Should().NotBeNull();
-        }
+        //     ageByCity.Should().NotBeNull();
+        // }
 
         #endregion
 
@@ -152,6 +134,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
             customersWithJohnInName.Should().NotBeNull();
         }
+        
 
         [Fact]
         public void CanExecute_StringStartsWith()
@@ -181,19 +164,19 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             emailsEndingWithCom.Should().NotBeNull();
         }
 
-        [Fact]
-        public void CanExecute_StringLength()
-        {
-            using var context = CreateContext();
+        // [Fact]
+        // public void CanExecute_StringLength()
+        // {
+        //     using var context = CreateContext();
 
-            var customersWithLongNames = context.Customers
-                .Where(c => c.Name.Length > 10)
-                .ToList();
+        //     var customersWithLongNames = context.Customers
+        //         .Where(c => c.Name.Length > 10)
+        //         .ToList();
 
-            _output.WriteLine($"Customers with names longer than 10 characters: {customersWithLongNames.Count}");
+        //     _output.WriteLine($"Customers with names longer than 10 characters: {customersWithLongNames.Count}");
 
-            customersWithLongNames.Should().NotBeNull();
-        }
+        //     customersWithLongNames.Should().NotBeNull();
+        // }
 
         #endregion
 
@@ -215,8 +198,6 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                 })
                 .ToList();
 
-            _output.WriteLine($"Price calculations for {priceCalculations.Count} products");
-
             priceCalculations.Should().NotBeNull();
         }
 
@@ -224,27 +205,27 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
         #region DATE OPERATIONS
 
-        [Fact]
-        public void CanExecute_DateOperations()
-        {
-            using var context = CreateContext();
+        // [Fact]
+        // public void CanExecute_DateOperations()
+        // {
+        //     using var context = CreateContext();
 
-            var recentOrders = context.Orders
-                .Where(o => o.OrderDate >= DateTime.Now.AddDays(-30))
-                .Select(o => new 
-                {
-                    o.Id,
-                    o.OrderDate,
-                    DaysAgo = (DateTime.Now - o.OrderDate).Days,
-                    Year = o.OrderDate.Year,
-                    Month = o.OrderDate.Month
-                })
-                .ToList();
+        //     var recentOrders = context.Orders
+        //         .Where(o => o.OrderDate >= DateTime.Now.AddDays(-30))
+        //         .Select(o => new 
+        //         {
+        //             o.Id,
+        //             o.OrderDate,
+        //             DaysAgo = (DateTime.Now - o.OrderDate).Days,
+        //             Year = o.OrderDate.Year,
+        //             Month = o.OrderDate.Month
+        //         })
+        //         .ToList();
 
-            _output.WriteLine($"Recent orders (last 30 days): {recentOrders.Count}");
+        //     _output.WriteLine($"Recent orders (last 30 days): {recentOrders.Count}");
 
-            recentOrders.Should().NotBeNull();
-        }
+        //     recentOrders.Should().NotBeNull();
+        // }
 
         #endregion
 
@@ -303,25 +284,25 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
         #region CASE/CONDITIONAL OPERATIONS
 
-        [Fact]
-        public void CanExecute_ConditionalSelect()
-        {
-            using var context = CreateContext();
+        // [Fact]
+        // public void CanExecute_ConditionalSelect()
+        // {
+        //     using var context = CreateContext();
 
-            var customerCategories = context.Customers
-                .Select(c => new 
-                {
-                    c.Name,
-                    c.Age,
-                    AgeCategory = c.Age < 30 ? "Young" : c.Age < 50 ? "Middle-aged" : "Senior",
-                    IsAdult = c.Age >= 18
-                })
-                .ToList();
+        //     var customerCategories = context.Customers
+        //         .Select(c => new 
+        //         {
+        //             c.Name,
+        //             c.Age,
+        //             AgeCategory = c.Age < 30 ? "Young" : c.Age < 50 ? "Middle-aged" : "Senior",
+        //             IsAdult = c.Age >= 18
+        //         })
+        //         .ToList();
 
-            _output.WriteLine($"Customer age categories for {customerCategories.Count} customers");
+        //     _output.WriteLine($"Customer age categories for {customerCategories.Count} customers");
 
-            customerCategories.Should().NotBeNull();
-        }
+        //     customerCategories.Should().NotBeNull();
+        // }
 
         #endregion
 

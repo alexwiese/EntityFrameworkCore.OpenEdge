@@ -39,8 +39,33 @@ From the Nuget Package Manager Console run this command (replacing the connectio
      
 ## What's working?
 
-- Basic Queries
-- Joins
+### Core Query Operations
+- **Basic Queries**: SELECT, WHERE, ORDER BY, COUNT, FIRST
+- **Aggregations**: COUNT, SUM, GROUP BY operations
+- **Subqueries**: Subqueries in WHERE clauses, EXISTS and NOT EXISTS patterns
+- **Paging**: SKIP and TAKE operations for pagination
+- **Sorting**: Multiple ORDER BY clauses with ASC/DESC
+
+### Join Operations
+- **Inner Joins**: Simple and complex multi-table joins
+- **Left Outer Joins**: LEFT JOIN with DefaultIfEmpty patterns
+- **Navigation Properties**: Include operations with filtered includes
+- **Complex Joins**: Multi-table joins across related entities
+
+### String Operations
+- **String Methods**: Contains, StartsWith, EndsWith
+- **String Comparisons**: Equality and pattern matching
+
+### Mathematical Operations
+- **Arithmetic**: Basic math operations (+, -, *, /) on decimal values
+- **Math Functions**: Math.Round, Math.Abs
+- **Calculations**: Discount calculations and price manipulations
+
+### Additional Features
+- **Null Handling**: Proper NULL checks and comparisons
+- **Type Mapping**: OpenEdge-specific type mappings including LOGICAL types
+
+### Data Manipulation
 - Inserts
 - Updates
 - Deletes

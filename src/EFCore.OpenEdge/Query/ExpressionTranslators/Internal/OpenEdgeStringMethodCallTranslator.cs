@@ -66,6 +66,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
         {
             // OpenEdge CONCAT only accepts 2 arguments, so we need to chain them
             // CONCAT('%', CONCAT(argument, '%')) to get '%argument%'
+            // https://docs.progress.com/bundle/openedge-sql-reference/page/Concatenation-operator.html
             var innerConcat = _sqlExpressionFactory.Function(
                 "CONCAT",
                 [argument, _sqlExpressionFactory.Constant("%")],

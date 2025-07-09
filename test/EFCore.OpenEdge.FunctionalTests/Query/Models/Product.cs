@@ -9,19 +9,19 @@ namespace EFCore.OpenEdge.FunctionalTests.Query.Models
     {
         [Key]
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
-        
+
         [Column(TypeName = "decimal(10,2)")]
         public decimal Price { get; set; }
-        
+
         public int CategoryId { get; set; }
-        
+
         [MaxLength(500)]
         public string Description { get; set; }
-        
+
         public bool InStock { get; set; }
 
         // Navigation property for category
@@ -29,5 +29,10 @@ namespace EFCore.OpenEdge.FunctionalTests.Query.Models
 
         // Navigation property for order items
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        
+        public override string ToString()
+        {
+            return $"Product: {Name}, Price: {Price}, Category: {Category?.Name}";
+        }
     }
 }
