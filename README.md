@@ -54,6 +54,7 @@ From the Nuget Package Manager Console run this command (replacing the connectio
 
 ### String Operations
 - **String Methods**: Contains, StartsWith, EndsWith
+- **String Properties**: Length property for string length calculations
 - **String Comparisons**: Equality and pattern matching
 
 ### Mathematical Operations

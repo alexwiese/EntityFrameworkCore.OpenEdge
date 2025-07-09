@@ -57,6 +57,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 // .TryAdd<IMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>()
 
                 .TryAdd<IMethodCallTranslatorProvider, OpenEdgeMethodCallTranslatorProvider>()
+                .TryAdd<IMemberTranslatorProvider, OpenEdgeMemberTranslatorProvider>()
                 
                 .TryAddProviderSpecificServices(b => b
                     .TryAddScoped<IOpenEdgeRelationalConnection, OpenEdgeRelationalConnection>()

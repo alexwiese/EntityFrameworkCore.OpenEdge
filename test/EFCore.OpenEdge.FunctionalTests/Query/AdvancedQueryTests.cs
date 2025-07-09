@@ -164,19 +164,19 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             emailsEndingWithCom.Should().NotBeNull();
         }
 
-        // [Fact]
-        // public void CanExecute_StringLength()
-        // {
-        //     using var context = CreateContext();
+        [Fact]
+        public void CanExecute_StringLength()
+        {
+            using var context = CreateContext();
 
-        //     var customersWithLongNames = context.Customers
-        //         .Where(c => c.Name.Length > 10)
-        //         .ToList();
+            var customersWithLongNames = context.Customers
+                .Where(c => c.Name.Length > 10)
+                .ToList();
 
-        //     _output.WriteLine($"Customers with names longer than 10 characters: {customersWithLongNames.Count}");
+            _output.WriteLine($"Customers with names longer than 10 characters: {customersWithLongNames.Count}");
 
-        //     customersWithLongNames.Should().NotBeNull();
-        // }
+            customersWithLongNames.Should().NotBeNull();
+        }
 
         #endregion
 
