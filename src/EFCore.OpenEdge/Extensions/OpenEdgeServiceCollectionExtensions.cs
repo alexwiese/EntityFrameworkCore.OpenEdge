@@ -45,6 +45,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
                 .TryAdd<IRelationalParameterBasedSqlProcessorFactory, OpenEdgeParameterBasedSqlProcessorFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
+                .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, OpenEdgeQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory,
                     OpenEdgeSqlTranslatingExpressionVisitorFactory>()
 

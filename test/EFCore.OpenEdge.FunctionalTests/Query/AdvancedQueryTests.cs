@@ -48,25 +48,25 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             categoryTotals.Should().NotBeNull();
         }
 
-        // [Fact]
-        // public void CanExecute_GroupBy_WithAverage()
-        // {
-        //     using var context = CreateContext();
+        [Fact]
+        public void CanExecute_GroupBy_WithAverage()
+        {
+            using var context = CreateContext();
 
-        //     var ageByCity = context.Customers
-        //         .Where(c => c.IsActive)
-        //         .GroupBy(c => c.City)
-        //         .Select(g => new 
-        //         { 
-        //             City = g.Key, 
-        //             AverageAge = g.Average(c => c.Age),
-        //             MinAge = g.Min(c => c.Age),
-        //             MaxAge = g.Max(c => c.Age)
-        //         })
-        //         .ToList();
+            var ageByCity = context.Customers
+                .Where(c => !c.IsActive)
+                .GroupBy(c => c.City)
+                .Select(g => new 
+                { 
+                    City = g.Key, 
+                    AverageAge = g.Average(c => c.Age),
+                    MinAge = g.Min(c => c.Age),
+                    MaxAge = g.Max(c => c.Age)
+                })
+                .ToList();
 
-        //     ageByCity.Should().NotBeNull();
-        // }
+            ageByCity.Should().NotBeNull();
+        }
 
         #endregion
 
