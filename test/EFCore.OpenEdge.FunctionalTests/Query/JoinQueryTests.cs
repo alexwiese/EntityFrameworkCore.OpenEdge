@@ -47,21 +47,21 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             customersWithOrders.Should().NotBeNull();
         }
 
-        // [Fact]
-        // public void CanExecute_MultiLevelInclude()
-        // {
-        //     using var context = CreateContext();
+        [Fact]
+        public void CanExecute_MultiLevelInclude()
+        {
+            using var context = CreateContext();
 
-        //     var customersWithOrderDetails = context.Customers
-        //         .Include(c => c.Orders)
-        //         .ThenInclude(o => o.OrderItems)
-        //         .ThenInclude(oi => oi.Product)
-        //         .ToList();
+            var customersWithOrderDetails = context.Customers
+                .Include(c => c.Orders)
+                .ThenInclude(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .ToList();
 
-        //     _output.WriteLine($"Found {customersWithOrderDetails.Count} customers with full order details");
+            _output.WriteLine($"Found {customersWithOrderDetails.Count} customers with full order details");
 
-        //     customersWithOrderDetails.Should().NotBeNull();
-        // }
+            customersWithOrderDetails.Should().NotBeNull();
+        }
 
         [Fact]
         public void CanExecute_ComplexQueryWithJoins()

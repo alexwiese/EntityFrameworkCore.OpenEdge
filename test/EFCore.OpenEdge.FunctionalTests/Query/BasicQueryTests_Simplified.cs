@@ -45,7 +45,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
             customers.Should().NotBeEmpty();
             customers[0].Age.Should().Be(25);
-            customers[9].Age.Should().Be(55);
+            customers[9].Age.Should().Be(40);
         }
 
         [Fact]

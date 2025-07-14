@@ -100,7 +100,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "binary", _binary },
                     { "blob", _binary },
                     { "bit", _boolean},
-                    { "logical", _boolean},
+                    { "logical", _boolean },
                     { "char varying", _char },
                     { "char", _char },
                     { "character varying", _char },
