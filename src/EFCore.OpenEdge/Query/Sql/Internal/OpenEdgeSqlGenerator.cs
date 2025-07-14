@@ -180,5 +180,29 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
             
             return constantExpression;
         }
+
+        protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+        {
+            // OpenEdge doesn't support boolean expressions directly in SELECT clauses (e.g., SELECT c.IsActive).
+            // They must be wrapped in CASE statements: CASE WHEN condition THEN 1 ELSE 0 END
+            if (projectionExpression.Expression.Type == typeof(bool) && 
+                projectionExpression.Expression is SqlBinaryExpression binaryExpression)
+            {
+                Sql.Append("CASE WHEN ");
+                Visit(binaryExpression);
+                Sql.Append(" THEN 1 ELSE 0 END");
+                
+                if (!string.IsNullOrEmpty(projectionExpression.Alias))
+                {
+                    Sql.Append(" AS ");
+                    Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+                }
+                
+                return projectionExpression;
+            }
+            
+            // For non-boolean expressions, use the base implementation
+            return base.VisitProjection(projectionExpression);
+        }
     }
 }

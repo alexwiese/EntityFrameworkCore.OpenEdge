@@ -284,25 +284,25 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
         #region CASE/CONDITIONAL OPERATIONS
 
-        // [Fact]
-        // public void CanExecute_ConditionalSelect()
-        // {
-        //     using var context = CreateContext();
+        [Fact]
+        public void CanExecute_ConditionalSelect()
+        {
+            using var context = CreateContext();
 
-        //     var customerCategories = context.Customers
-        //         .Select(c => new 
-        //         {
-        //             c.Name,
-        //             c.Age,
-        //             AgeCategory = c.Age < 30 ? "Young" : c.Age < 50 ? "Middle-aged" : "Senior",
-        //             IsAdult = c.Age >= 18
-        //         })
-        //         .ToList();
+            var customerCategories = context.Customers
+                .Select(c => new 
+                {
+                    c.Name,
+                    c.Age,
+                    AgeCategory = c.Age < 30 ? "Young" : c.Age < 50 ? "Middle-aged" : "Senior",
+                    IsAdult = c.Age >= 18
+                })
+                .ToList();
 
-        //     _output.WriteLine($"Customer age categories for {customerCategories.Count} customers");
+            _output.WriteLine($"Customer age categories for {customerCategories.Count} customers");
 
-        //     customerCategories.Should().NotBeNull();
-        // }
+            customerCategories.Should().NotBeNull();
+        }
 
         #endregion
 
