@@ -1,9 +1,5 @@
 # Entity Framework Core provider for Progress OpenEdge
 
-[![Nuget](https://img.shields.io/nuget/v/EntityFrameworkCore.OpenEdge.svg)](https://www.nuget.org/packages/EntityFrameworkCore.OpenEdge)
-[![Nuget](https://img.shields.io/nuget/dt/EntityFrameworkCore.OpenEdge.svg)](https://www.nuget.org/packages/EntityFrameworkCore.OpenEdge)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Falexwiese%2FEntityFrameworkCore.OpenEdge?ref=badge_shield)
-
 EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows you to use Entity Framework Core with Progress OpenEdge.
 
 ## Usage
