@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
+using EFCore.OpenEdge.FunctionalTests.Shared;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace EFCore.OpenEdge.FunctionalTests.Query
 {
-    public class AdvancedQueryTests : BasicQueryTestBase
+    public class AdvancedQueryTests : ECommerceTestBase
     {
         private readonly ITestOutputHelper _output;
 

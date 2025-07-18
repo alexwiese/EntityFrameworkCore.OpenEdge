@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EFCore.OpenEdge.FunctionalTests.Query.Models
+namespace EFCore.OpenEdge.FunctionalTests.Shared.Models
 {
     [Table("ORDER_ITEMS_TEST_PROVIDER", Schema = "PUB")]
     public class OrderItem

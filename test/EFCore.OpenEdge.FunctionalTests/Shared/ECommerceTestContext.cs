@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using EFCore.OpenEdge.FunctionalTests.Shared.Models;
 
-namespace EFCore.OpenEdge.FunctionalTests.Query
+namespace EFCore.OpenEdge.FunctionalTests.Shared
 {
-    public class BasicQueryContext : DbContext
+    public class ECommerceTestContext : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -11,7 +11,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        public BasicQueryContext(DbContextOptions<BasicQueryContext> options) : base(options)
+        public ECommerceTestContext(DbContextOptions<ECommerceTestContext> options) : base(options)
         {
         }
 

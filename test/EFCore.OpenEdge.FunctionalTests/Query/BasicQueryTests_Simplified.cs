@@ -1,11 +1,12 @@
 using System.Linq;
+using EFCore.OpenEdge.FunctionalTests.Shared;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace EFCore.OpenEdge.FunctionalTests.Query
 {
-    public class BasicQueryTests : BasicQueryTestBase
+    public class BasicQueryTests : ECommerceTestBase
     {
 
         private readonly ITestOutputHelper _output;
@@ -45,7 +46,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
             customers.Should().NotBeEmpty();
             customers[0].Age.Should().Be(25);
-            customers[9].Age.Should().Be(40);
+            customers[9].Age.Should().Be(55);
         }
 
         [Fact]

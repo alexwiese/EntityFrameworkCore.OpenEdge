@@ -1,16 +1,17 @@
 using System;
 using System.Linq;
+using EFCore.OpenEdge.FunctionalTests.Shared;
+using EFCore.OpenEdge.FunctionalTests.Shared.Models;
+using EFCore.OpenEdge.FunctionalTests.TestUtilities;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using EFCore.OpenEdge.FunctionalTests.Query.Models;
-using EFCore.OpenEdge.FunctionalTests.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 using System.Text.RegularExpressions;
 
 namespace EFCore.OpenEdge.FunctionalTests.Query
 {
-    public class SqlGenerationTests : BasicQueryTestBase
+    public class SqlGenerationTests : ECommerceTestBase
     {
         private readonly ITestOutputHelper _output;
 
@@ -19,16 +20,16 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             _output = output;
         }
 
-        private (BasicQueryContext context, SqlCapturingInterceptor interceptor) CreateContextWithSqlCapturing()
+        private (ECommerceTestContext context, SqlCapturingInterceptor interceptor) CreateContextWithSqlCapturing()
         {
             var interceptor = new SqlCapturingInterceptor();
 
-            var options = CreateOptionsBuilder<BasicQueryContext>()
+            var options = CreateOptionsBuilder<ECommerceTestContext>()
                 .AddInterceptors(interceptor)
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            var context = new BasicQueryContext(options);
+            var context = new ECommerceTestContext(options);
             return (context, interceptor);
         }
 

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EFCore.OpenEdge.FunctionalTests.Query.Models
+namespace EFCore.OpenEdge.FunctionalTests.Shared.Models
 {
     [Table("PRODUCTS_TEST_PROVIDER", Schema = "PUB")]
     public class Product

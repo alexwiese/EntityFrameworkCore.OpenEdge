@@ -40,54 +40,54 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         /// Visitor that finds OFFSET/FETCH SqlParameterExpressions and replaces them with SqlConstantExpressions
         /// so that the parameter values are inlined directly into the SQL string.
         /// </summary>
-    private sealed class OffsetValueInliningExpressionVisitor : ExpressionVisitor
-    {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        #nullable enable
-        private readonly IReadOnlyDictionary<string, object?> _parameterValues;
-
-
-        public OffsetValueInliningExpressionVisitor(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<string, object?> parameterValues)
+        private sealed class OffsetValueInliningExpressionVisitor : ExpressionVisitor
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _parameterValues = parameterValues;
-        }
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+            #nullable enable
+            private readonly IReadOnlyDictionary<string, object?> _parameterValues;
 
-        protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            if (extensionExpression is ShapedQueryExpression shapedQuery)
+
+            public OffsetValueInliningExpressionVisitor(
+                ISqlExpressionFactory sqlExpressionFactory,
+                IReadOnlyDictionary<string, object?> parameterValues)
             {
-                var newQueryExpression = Visit(shapedQuery.QueryExpression);
-                return newQueryExpression != shapedQuery.QueryExpression
-                    ? shapedQuery.Update(newQueryExpression, shapedQuery.ShaperExpression)
-                    : shapedQuery;
+                _sqlExpressionFactory = sqlExpressionFactory;
+                _parameterValues = parameterValues;
             }
 
-            if (extensionExpression is SelectExpression selectExpression)
+            protected override Expression VisitExtension(Expression extensionExpression)
             {
-                var newOffset = InlineParameter(selectExpression.Offset);
-                var newLimit = InlineParameter(selectExpression.Limit);
-
-                if (newOffset != selectExpression.Offset || newLimit != selectExpression.Limit)
+                if (extensionExpression is ShapedQueryExpression shapedQuery)
                 {
-                    // Create a new SelectExpression with the updated, inlined values
-                    return selectExpression.Update(
-                        selectExpression.Tables,
-                        selectExpression.Predicate,
-                        selectExpression.GroupBy,
-                        selectExpression.Having,
-                        selectExpression.Projection,
-                        selectExpression.Orderings,
-                        // !This order is important to match the expected OpenEdge SQL OFFSET/FETCH order
-                        newOffset, // Use the potentially updated offset
-                        newLimit); // Use the potentially updated limit
+                    var newQueryExpression = Visit(shapedQuery.QueryExpression);
+                    return newQueryExpression != shapedQuery.QueryExpression
+                        ? shapedQuery.Update(newQueryExpression, shapedQuery.ShaperExpression)
+                        : shapedQuery;
                 }
-            }
 
-            return base.VisitExtension(extensionExpression);
-        }
+                if (extensionExpression is SelectExpression selectExpression)
+                {
+                    var newOffset = InlineParameter(selectExpression.Offset);
+                    var newLimit = InlineParameter(selectExpression.Limit);
+
+                    if (newOffset != selectExpression.Offset || newLimit != selectExpression.Limit)
+                    {
+                        // Create a new SelectExpression with the updated, inlined values
+                        return selectExpression.Update(
+                            selectExpression.Tables,
+                            selectExpression.Predicate,
+                            selectExpression.GroupBy,
+                            selectExpression.Having,
+                            selectExpression.Projection,
+                            selectExpression.Orderings,
+                            // !This order is important to match the expected OpenEdge SQL OFFSET/FETCH order
+                            newOffset, // Use the potentially updated offset
+                            newLimit); // Use the potentially updated limit
+                    }
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
 
             /// <summary>
             /// Checks if the expression is a SqlParameterExpression and if so, replaces it with a SqlConstantExpression

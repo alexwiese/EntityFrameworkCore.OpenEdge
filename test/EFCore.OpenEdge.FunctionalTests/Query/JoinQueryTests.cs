@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using EFCore.OpenEdge.FunctionalTests.Shared;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -7,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace EFCore.OpenEdge.FunctionalTests.Query
 {
-    public class JoinQueryTests : BasicQueryTestBase
+    public class JoinQueryTests : ECommerceTestBase
     {
         private readonly ITestOutputHelper _output;
 
