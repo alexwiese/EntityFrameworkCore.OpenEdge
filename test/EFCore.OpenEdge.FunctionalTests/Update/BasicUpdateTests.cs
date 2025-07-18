@@ -195,353 +195,353 @@ namespace EFCore.OpenEdge.FunctionalTests.Update
             }
         }
 
-        // [Fact]
-        // public void CanUpdate_Product_Price()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanUpdate_Product_Price()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Find an existing product
-        //         var product = context.Products.First(p => p.Id == 1);
-        //         var originalPrice = product.Price;
+            try
+            {
+                // Find an existing product
+                var product = context.Products.First(p => p.Id == 1);
+                var originalPrice = product.Price;
 
-        //         // Update the price
-        //         product.Price = 1099.99m;
-        //         product.Description = "Updated description";
+                // Update the price
+                product.Price = 1099.99m;
+                product.Description = "Updated description";
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Updated product price: {originalPrice} -> {product.Price}");
+                result.Should().Be(1);
+                Console.WriteLine($"Updated product price: {originalPrice} -> {product.Price}");
 
-        //         // Verify the update
-        //         var updatedProduct = context.Products.Find(1);
-        //         updatedProduct.Price.Should().Be(1099.99m);
-        //         updatedProduct.Description.Should().Be("Updated description");
+                // Verify the update
+                var updatedProduct = context.Products.Find(1);
+                updatedProduct.Price.Should().Be(1099.99m);
+                updatedProduct.Description.Should().Be("Updated description");
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
-        // [Fact]
-        // public void CanUpdate_Order_Status()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanUpdate_Order_Status()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Find an existing order
-        //         var order = context.Orders.First(o => o.Id == 1);
-        //         var originalStatus = order.Status;
+            try
+            {
+                // Find an existing order
+                var order = context.Orders.First(o => o.Id == 1);
+                var originalStatus = order.Status;
 
-        //         // Update the status
-        //         order.Status = "Delivered";
-        //         order.TotalAmount = 1199.98m;
+                // Update the status
+                order.Status = "Delivered";
+                order.TotalAmount = 1199.98m;
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Updated order status: {originalStatus} -> {order.Status}");
+                result.Should().Be(1);
+                Console.WriteLine($"Updated order status: {originalStatus} -> {order.Status}");
 
-        //         // Verify the update
-        //         var updatedOrder = context.Orders.Find(1);
-        //         updatedOrder.Status.Should().Be("Delivered");
-        //         updatedOrder.TotalAmount.Should().Be(1199.98m);
+                // Verify the update
+                var updatedOrder = context.Orders.Find(1);
+                updatedOrder.Status.Should().Be("Delivered");
+                updatedOrder.TotalAmount.Should().Be(1199.98m);
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
         #endregion
 
         #region DELETE TESTS
 
-        // [Fact]
-        // public void CanDelete_Customer()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanDelete_Customer()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // First, add a customer that we can delete
-        //         var customer = new Customer
-        //         {
-        //             Id = 200,
-        //             Name = "Customer To Delete",
-        //             Email = "delete@example.com",
-        //             Age = 25,
-        //             City = "Delete City",
-        //             IsActive = true
-        //         };
+            try
+            {
+                // First, add a customer that we can delete
+                var customer = new Customer
+                {
+                    Id = 200,
+                    Name = "Customer To Delete",
+                    Email = "delete@example.com",
+                    Age = 25,
+                    City = "Delete City",
+                    IsActive = true
+                };
 
-        //         context.Customers.Add(customer);
-        //         context.SaveChanges();
+                context.Customers.Add(customer);
+                context.SaveChanges();
 
-        //         // Now delete the customer
-        //         var customerToDelete = context.Customers.Find(200);
-        //         context.Customers.Remove(customerToDelete);
+                // Now delete the customer
+                var customerToDelete = context.Customers.Find(200);
+                context.Customers.Remove(customerToDelete);
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Deleted customer: {customer.Name}");
+                result.Should().Be(1);
+                Console.WriteLine($"Deleted customer: {customer.Name}");
 
-        //         // Verify the deletion
-        //         var deletedCustomer = context.Customers.Find(200);
-        //         deletedCustomer.Should().BeNull();
+                // Verify the deletion
+                var deletedCustomer = context.Customers.Find(200);
+                deletedCustomer.Should().BeNull();
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
-        // [Fact]
-        // public void CanDelete_Product()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanDelete_Product()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // First, add a product that we can delete
-        //         var product = new Product
-        //         {
-        //             Id = 200,
-        //             Name = "Product To Delete",
-        //             Price = 50.00m,
-        //             CategoryId = 1,
-        //             Description = "Product for deletion test",
-        //             InStock = true
-        //         };
+            try
+            {
+                // First, add a product that we can delete
+                var product = new Product
+                {
+                    Id = 200,
+                    Name = "Product To Delete",
+                    Price = 50.00m,
+                    CategoryId = 1,
+                    Description = "Product for deletion test",
+                    InStock = true
+                };
 
-        //         context.Products.Add(product);
-        //         context.SaveChanges();
+                context.Products.Add(product);
+                context.SaveChanges();
 
-        //         // Now delete the product
-        //         var productToDelete = context.Products.Find(200);
-        //         context.Products.Remove(productToDelete);
+                // Now delete the product
+                var productToDelete = context.Products.Find(200);
+                context.Products.Remove(productToDelete);
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Deleted product: {product.Name}");
+                result.Should().Be(1);
+                Console.WriteLine($"Deleted product: {product.Name}");
 
-        //         // Verify the deletion
-        //         var deletedProduct = context.Products.Find(200);
-        //         deletedProduct.Should().BeNull();
+                // Verify the deletion
+                var deletedProduct = context.Products.Find(200);
+                deletedProduct.Should().BeNull();
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
-        // [Fact]
-        // public void CanDelete_OrderItem()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanDelete_OrderItem()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Find an existing order item
-        //         var orderItem = context.OrderItems.First(oi => oi.Id == 1);
-        //         var orderId = orderItem.OrderId;
+            try
+            {
+                // Find an existing order item
+                var orderItem = context.OrderItems.First(oi => oi.Id == 1);
+                var orderId = orderItem.OrderId;
 
-        //         // Delete the order item
-        //         context.OrderItems.Remove(orderItem);
+                // Delete the order item
+                context.OrderItems.Remove(orderItem);
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Deleted order item from order {orderId}");
+                result.Should().Be(1);
+                Console.WriteLine($"Deleted order item from order {orderId}");
 
-        //         // Verify the deletion
-        //         var deletedOrderItem = context.OrderItems.Find(1);
-        //         deletedOrderItem.Should().BeNull();
+                // Verify the deletion
+                var deletedOrderItem = context.OrderItems.Find(1);
+                deletedOrderItem.Should().BeNull();
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
         #endregion
 
         #region COMPLEX UPDATE TESTS
 
-        // [Fact]
-        // public void CanUpdate_Multiple_Entities()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanUpdate_Multiple_Entities()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Update multiple customers
-        //         var customers = context.Customers.Where(c => c.City == "New York").ToList();
-        //         foreach (var customer in customers)
-        //         {
-        //             customer.City = "New York Updated";
-        //         }
+            try
+            {
+                // Update multiple customers
+                var customers = context.Customers.Where(c => c.City == "New York").ToList();
+                foreach (var customer in customers)
+                {
+                    customer.City = "New York Updated";
+                }
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().BeGreaterThan(0);
-        //         Console.WriteLine($"Updated {result} customers in New York");
+                result.Should().BeGreaterThan(0);
+                Console.WriteLine($"Updated {result} customers in New York");
 
-        //         // Verify the updates
-        //         var updatedCustomers = context.Customers.Where(c => c.City == "New York Updated").ToList();
-        //         updatedCustomers.Should().HaveCount(result);
+                // Verify the updates
+                var updatedCustomers = context.Customers.Where(c => c.City == "New York Updated").ToList();
+                updatedCustomers.Should().HaveCount(result);
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
-        // [Fact]
-        // public void CanUpdate_With_Navigation_Properties()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanUpdate_With_Navigation_Properties()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Load an order with its items
-        //         var order = context.Orders
-        //             .Include(o => o.OrderItems)
-        //             .First(o => o.Id == 1);
+            try
+            {
+                // Load an order with its items
+                var order = context.Orders
+                    .Include(o => o.OrderItems)
+                    .First(o => o.Id == 1);
 
-        //         // Update the order
-        //         order.Status = "Updated Status";
+                // Update the order
+                order.Status = "Updated Status";
 
-        //         // Update one of the order items
-        //         var firstItem = order.OrderItems.First();
-        //         firstItem.Quantity = 5;
-        //         firstItem.UnitPrice = 199.99m;
+                // Update one of the order items
+                var firstItem = order.OrderItems.First();
+                firstItem.Quantity = 5;
+                firstItem.UnitPrice = 199.99m;
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(2); // 1 order + 1 order item
-        //         Console.WriteLine($"Updated order and order item, total changes: {result}");
+                result.Should().Be(2); // 1 order + 1 order item
+                Console.WriteLine($"Updated order and order item, total changes: {result}");
 
-        //         // Verify the updates
-        //         var updatedOrder = context.Orders
-        //             .Include(o => o.OrderItems)
-        //             .First(o => o.Id == 1);
+                // Verify the updates
+                var updatedOrder = context.Orders
+                    .Include(o => o.OrderItems)
+                    .First(o => o.Id == 1);
 
-        //         updatedOrder.Status.Should().Be("Updated Status");
-        //         updatedOrder.OrderItems.First().Quantity.Should().Be(5);
-        //         updatedOrder.OrderItems.First().UnitPrice.Should().Be(199.99m);
+                updatedOrder.Status.Should().Be("Updated Status");
+                updatedOrder.OrderItems.First().Quantity.Should().Be(5);
+                updatedOrder.OrderItems.First().UnitPrice.Should().Be(199.99m);
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
         #endregion
 
         #region ERROR HANDLING TESTS
 
-        // [Fact]
-        // public void Should_Fail_Insert_Duplicate_Primary_Key()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void Should_Fail_Insert_Duplicate_Primary_Key()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         var customer = new Customer
-        //         {
-        //             Id = 1, // This ID already exists
-        //             Name = "Duplicate Customer",
-        //             Email = "duplicate@example.com",
-        //             Age = 30,
-        //             City = "Test City",
-        //             IsActive = true
-        //         };
+            try
+            {
+                var customer = new Customer
+                {
+                    Id = 1, // This ID already exists
+                    Name = "Duplicate Customer",
+                    Email = "duplicate@example.com",
+                    Age = 30,
+                    City = "Test City",
+                    IsActive = true
+                };
 
-        //         context.Customers.Add(customer);
+                context.Customers.Add(customer);
 
-        //         // This should throw an exception due to duplicate primary key
-        //         var exception = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-        //         Console.WriteLine($"Expected exception caught: {exception.Message}");
+                // This should throw an exception due to duplicate primary key
+                var exception = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                Console.WriteLine($"Expected exception caught: {exception.Message}");
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
-        // [Fact]
-        // public void Should_Fail_Update_NonExistent_Entity()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void Should_Fail_Update_NonExistent_Entity()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // Try to update a customer that doesn't exist
-        //         var customer = new Customer
-        //         {
-        //             Id = 999, // Non-existent ID
-        //             Name = "Non-existent Customer",
-        //             Email = "nonexistent@example.com",
-        //             Age = 30,
-        //             City = "Test City",
-        //             IsActive = true
-        //         };
+            try
+            {
+                // Try to update a customer that doesn't exist
+                var customer = new Customer
+                {
+                    Id = 999, // Non-existent ID
+                    Name = "Non-existent Customer",
+                    Email = "nonexistent@example.com",
+                    Age = 30,
+                    City = "Test City",
+                    IsActive = true
+                };
 
-        //         context.Customers.Update(customer);
+                context.Customers.Update(customer);
 
-        //         // This should result in 0 changes
-        //         var result = context.SaveChanges();
-        //         result.Should().Be(1); // EF Core will insert if it doesn't exist when using Update
-        //         Console.WriteLine($"Update resulted in {result} changes");
+                // This should result in 0 changes
+                var result = context.SaveChanges();
+                result.Should().Be(1); // EF Core will insert if it doesn't exist when using Update
+                Console.WriteLine($"Update resulted in {result} changes");
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
         #endregion
     }
