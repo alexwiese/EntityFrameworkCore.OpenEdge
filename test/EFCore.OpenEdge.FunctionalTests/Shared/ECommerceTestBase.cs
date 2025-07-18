@@ -15,7 +15,12 @@ namespace EFCore.OpenEdge.FunctionalTests.Shared
         protected ECommerceTestContext CreateContext()
         {
             var options = CreateOptionsBuilder<ECommerceTestContext>().Options;
-            return new ECommerceTestContext(options);
+            var context = new ECommerceTestContext(options);
+            
+            // Disable savepoints for OpenEdge compatibility
+            context.Database.AutoSavepointsEnabled = false;
+            
+            return context;
         }
 
         public override void Dispose()
