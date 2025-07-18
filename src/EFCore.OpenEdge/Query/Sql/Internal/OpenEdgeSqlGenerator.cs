@@ -169,6 +169,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
+            // Handle DateTime values with OpenEdge-specific format
             if ((constantExpression.Type == typeof(DateTime) || constantExpression.Type == typeof(DateTime?))
                 && constantExpression.Value != null)
             {

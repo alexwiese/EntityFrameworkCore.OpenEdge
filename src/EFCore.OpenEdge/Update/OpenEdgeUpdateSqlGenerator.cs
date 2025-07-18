@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,10 +62,18 @@ namespace EntityFrameworkCore.OpenEdge.Update
 
         private void AppendSqlLiteral(StringBuilder commandStringBuilder, object value, IProperty property)
         {
+            // Handle DateTime values with OpenEdge-specific format
+            if (value is DateTime dateTime)
+            {
+                commandStringBuilder.Append($"{{ ts '{dateTime:yyyy-MM-dd HH:mm:ss}' }}");
+                return;
+            }
+            
             var mapping = property != null
                 ? Dependencies.TypeMappingSource.FindMapping(property)
                 : null;
-            mapping = mapping ?? Dependencies.TypeMappingSource.GetMappingForValue(value);
+                
+            mapping ??= Dependencies.TypeMappingSource.GetMappingForValue(value);
             commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
         }
 
