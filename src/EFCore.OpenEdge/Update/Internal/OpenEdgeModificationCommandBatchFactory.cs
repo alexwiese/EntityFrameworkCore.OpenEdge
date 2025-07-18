@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Update;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace EntityFrameworkCore.OpenEdge.Update.Internal
 {
@@ -10,7 +12,8 @@ namespace EntityFrameworkCore.OpenEdge.Update.Internal
         {
             _dependencies = dependencies;
         }
-
-        public virtual ModificationCommandBatch Create() => new OpenEdgeSingularModificationCommandBatch(_dependencies);
+        
+        public virtual ModificationCommandBatch Create()
+            => new OpenEdgeModificationCommandBatch(_dependencies);
     }
 }

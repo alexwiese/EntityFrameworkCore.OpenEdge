@@ -158,42 +158,42 @@ namespace EFCore.OpenEdge.FunctionalTests.Update
 
         #region UPDATE TESTS
 
-        // [Fact]
-        // public void CanUpdate_Customer()
-        // {
-        //     using var context = CreateContext();
-        //     using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        [Fact]
+        public void CanUpdate_Customer()
+        {
+            using var context = CreateContext();
+            using var transaction = context.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
 
-        //     try
-        //     {
-        //         // First, find an existing customer
-        //         var customer = context.Customers.First(c => c.Id == 1);
-        //         var originalName = customer.Name;
+            try
+            {
+                // First, find an existing customer
+                var customer = context.Customers.First(c => c.Id == 1);
+                var originalName = customer.Name;
 
-        //         // Update the customer
-        //         customer.Name = "Updated John Doe";
-        //         customer.Age = 31;
-        //         customer.City = "Updated City";
+                // Update the customer
+                customer.Name = "Updated John Doe";
+                customer.Age = 31;
+                customer.City = "Updated City";
 
-        //         var result = context.SaveChanges();
+                var result = context.SaveChanges();
 
-        //         result.Should().Be(1);
-        //         Console.WriteLine($"Updated customer: {originalName} -> {customer.Name}");
+                result.Should().Be(1);
+                Console.WriteLine($"Updated customer: {originalName} -> {customer.Name}");
 
-        //         // Verify the update
-        //         var updatedCustomer = context.Customers.Find(1);
-        //         updatedCustomer.Name.Should().Be("Updated John Doe");
-        //         updatedCustomer.Age.Should().Be(31);
-        //         updatedCustomer.City.Should().Be("Updated City");
+                // Verify the update
+                var updatedCustomer = context.Customers.Find(1);
+                updatedCustomer.Name.Should().Be("Updated John Doe");
+                updatedCustomer.Age.Should().Be(31);
+                updatedCustomer.City.Should().Be("Updated City");
 
-        //         transaction.Commit();
-        //     }
-        //     catch
-        //     {
-        //         transaction.Rollback();
-        //         throw;
-        //     }
-        // }
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
 
         // [Fact]
         // public void CanUpdate_Product_Price()

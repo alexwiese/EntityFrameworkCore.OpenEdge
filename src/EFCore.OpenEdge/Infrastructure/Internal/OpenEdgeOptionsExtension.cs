@@ -3,6 +3,9 @@ using EntityFrameworkCore.OpenEdge.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+using EntityFrameworkCore.OpenEdge.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update;
+
 namespace EntityFrameworkCore.OpenEdge.Infrastructure.Internal
 {
     /// <summary>
@@ -20,7 +23,10 @@ namespace EntityFrameworkCore.OpenEdge.Infrastructure.Internal
             => new OpenEdgeOptionsExtension();
 
         public override void ApplyServices(IServiceCollection services)
-            => services.AddEntityFrameworkOpenEdge();
+        {
+            services.AddEntityFrameworkOpenEdge();
+            services.AddScoped<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>();
+        }
 
         // ✅ Required nested class for EF Core 3.0+
         private sealed class OpenExtensionInfo : RelationalExtensionInfo
