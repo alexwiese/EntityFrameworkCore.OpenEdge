@@ -17,8 +17,6 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             _output = output;
         }
 
-        // TODO: Ensure that there are no name collisions for table joins when tables have fields with the same names
-
         [Fact]
         public void CanExecute_SimpleInnerJoin()
         {

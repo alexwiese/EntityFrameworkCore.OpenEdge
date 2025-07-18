@@ -8,6 +8,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal
     /// </summary>
     public class OpenEdgeDatabaseCreator : RelationalDatabaseCreator
     {
+        // TODO: Double check what all of this is about
         public OpenEdgeDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies) : base(dependencies)
         {
         }
