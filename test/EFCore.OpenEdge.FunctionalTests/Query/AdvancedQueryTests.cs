@@ -205,27 +205,27 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
         #region DATE OPERATIONS
 
-        // [Fact]
-        // public void CanExecute_DateOperations()
-        // {
-        //     using var context = CreateContext();
+        [Fact]
+        public void CanExecute_DateOperations()
+        {
+            using var context = CreateContext();
 
-        //     var recentOrders = context.Orders
-        //         .Where(o => o.OrderDate >= DateTime.Now.AddDays(-30))
-        //         .Select(o => new 
-        //         {
-        //             o.Id,
-        //             o.OrderDate,
-        //             DaysAgo = (DateTime.Now - o.OrderDate).Days,
-        //             Year = o.OrderDate.Year,
-        //             Month = o.OrderDate.Month
-        //         })
-        //         .ToList();
+            // Calculate the date threshold on the client side
+            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
 
-        //     _output.WriteLine($"Recent orders (last 30 days): {recentOrders.Count}");
+            var recentOrders = context.Orders
+                .Where(o => o.OrderDate >= thirtyDaysAgo)
+                .Select(o => new 
+                {
+                    o.Id,
+                    o.OrderDate
+                })
+                .ToList();
 
-        //     recentOrders.Should().NotBeNull();
-        // }
+            _output.WriteLine($"Recent orders (last 30 days): {recentOrders.Count}");
+
+            recentOrders.Should().NotBeNull();
+        }
 
         #endregion
 
