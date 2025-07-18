@@ -168,9 +168,6 @@ namespace EntityFrameworkCore.OpenEdge.Update
             int commandPosition,
             out bool requiresTransaction)
         {
-            // DEBUG: Add comment to verify our code is running  
-            commandStringBuilder.AppendLine("/* OpenEdge Custom Update */");
-            
             // TODO: Double check this?!
             requiresTransaction = false;
             
