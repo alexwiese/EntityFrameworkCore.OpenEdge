@@ -37,6 +37,7 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 // Handles OpenEdge-specific SQL syntax
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
+                .TryAdd<IModelCustomizer, OpenEdgeModelCustomizer>()
                 .TryAdd<IModificationCommandBatchFactory, OpenEdgeModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
                 .TryAdd<IRelationalDatabaseCreator, OpenEdgeDatabaseCreator>()

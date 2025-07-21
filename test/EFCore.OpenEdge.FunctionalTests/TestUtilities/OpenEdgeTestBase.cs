@@ -38,7 +38,7 @@ namespace EFCore.OpenEdge.FunctionalTests.TestUtilities
         protected DbContextOptionsBuilder<T> CreateOptionsBuilder<T>() where T : DbContext
         {
             return new DbContextOptionsBuilder<T>()
-                .UseOpenEdge(ConnectionString)
+                .UseOpenEdge(ConnectionString, "PUB")
                 .EnableSensitiveDataLogging()
                 .UseLoggerFactory(_loggerFactory);
         }
@@ -46,7 +46,7 @@ namespace EFCore.OpenEdge.FunctionalTests.TestUtilities
         protected DbContextOptions CreateOptions()
         {
             return new DbContextOptionsBuilder()
-                .UseOpenEdge(ConnectionString)
+                .UseOpenEdge(ConnectionString, "PUB")
                 .EnableSensitiveDataLogging()
                 .UseLoggerFactory(_loggerFactory)
                 .Options;

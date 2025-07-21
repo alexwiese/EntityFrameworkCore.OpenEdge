@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCore.OpenEdge.FunctionalTests.Shared.Models
 {
-    [Table("CUSTOMERS_TEST_PROVIDER", Schema = "PUB")]
+    // [Table("CUSTOMERS_TEST_PROVIDER", Schema = "PUB")]
+    [Table("CUSTOMERS_TEST_PROVIDER")]
     public class Customer
     {
         [Key]
