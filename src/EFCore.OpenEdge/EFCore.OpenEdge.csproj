@@ -2,27 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
-    <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
+    <AssemblyName>EntityFrameworkCore.OpenEdge.Extended</AssemblyName>
+    <RootNamespace>EntityFrameworkCore.OpenEdge.Extended</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <VersionPrefix>1.0.0</VersionPrefix>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../efcoreoe.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <Authors>Alex Wiese</Authors>
-    <Description>Entity Framework Core provider for Progress OpenEdge</Description>
-    <PackageProjectUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</RepositoryUrl>
+    <Authors>Ernests Rudzitis</Authors>
+    <Description>An extended and modernized Entity Framework Core provider for Progress OpenEdge databases, supporting EF Core 9</Description>
+    <PackageProjectUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
+    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql;extended</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.13</Version>
-    <PackageReleaseNotes>Map missing types clob, blob, double, recid, don't insert rowid.</PackageReleaseNotes>
+    <Version>9.0.0</Version>
+    <PackageReleaseNotes>Initial release for EF Core 9. Modernized provider with full support for querying, data manipulation, and scaffolding. Forked from the original project by Alex Wiese.</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
