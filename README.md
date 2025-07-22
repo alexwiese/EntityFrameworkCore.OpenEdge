@@ -1,6 +1,6 @@
 # Entity Framework Core provider for Progress OpenEdge
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge?ref=badge_shield&issueType=license) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge?ref=badge_shield&issueType=security)
+[![NuGet Version](https://img.shields.io/nuget/v/EntityFrameworkCore.OpenEdge.Extended)](https://www.nuget.org/packages/EntityFrameworkCore.OpenEdge.Extended/) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge?ref=badge_shield&issueType=license) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Ferudzitis%2FEntityFrameworkCore.OpenEdge?ref=badge_shield&issueType=security)
 
 EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows you to use Entity Framework Core with Progress OpenEdge databases through ODBC connections. This provider supports EF Core 9.
 
