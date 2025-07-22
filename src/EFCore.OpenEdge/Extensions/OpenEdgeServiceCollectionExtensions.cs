@@ -30,11 +30,8 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
         {
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, OpenEdgeLoggingDefinitions>()
-                // Registers the main provider that EF Core uses to identify this as the OpenEdge provider
                 .TryAdd<IDatabaseProvider, DatabaseProvider<OpenEdgeOptionsExtension>>()
-                // Contains code/database first type mappings
                 .TryAdd<IRelationalTypeMappingSource, OpenEdgeTypeMappingSource>()
-                // Handles OpenEdge-specific SQL syntax
                 .TryAdd<ISqlGenerationHelper, OpenEdgeSqlGenerationHelper>()
                 .TryAdd<IConventionSetBuilder, OpenEdgeRelationalConventionSetBuilder>()
                 .TryAdd<IModelCustomizer, OpenEdgeModelCustomizer>()
@@ -42,7 +39,6 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOpenEdgeRelationalConnection>())
                 .TryAdd<IRelationalDatabaseCreator, OpenEdgeDatabaseCreator>()
 
-                // .TryAdd<IBatchExecutor, BatchExecutor>() // Became internal in EF Core 5+
                 .TryAdd<IQueryTranslationPostprocessorFactory, OpenEdgeQueryTranslationPostprocessorFactory>()
                 .TryAdd<IRelationalParameterBasedSqlProcessorFactory, OpenEdgeParameterBasedSqlProcessorFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, OpenEdgeSqlGeneratorFactory>()
@@ -50,21 +46,12 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory,
                     OpenEdgeSqlTranslatingExpressionVisitorFactory>()
 
-                // .TryAdd<ISingletonUpdateSqlGenerator, OpenEdgeUpdateSqlGenerator>() // ISingletonUpdateSqlGenerator has been removed
-                // .TryAdd<IRelationalResultOperatorHandler, OpenEdgeResultOperatorHandler>() // Supposedly no longer exists
-                // .TryAdd<IQueryModelGenerator, OpenEdgeQueryModelGenerator>() // Supposedly no longer exists
-
-                // These need to go in provider specific?
-                // .TryAdd<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
-                // .TryAdd<IMethodCallTranslator, OpenEdgeCompositeMethodCallTranslator>()
-
                 .TryAdd<IMethodCallTranslatorProvider, OpenEdgeMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, OpenEdgeMemberTranslatorProvider>()
                 
                 .TryAddProviderSpecificServices(b => b
                     .TryAddScoped<IOpenEdgeRelationalConnection, OpenEdgeRelationalConnection>()
-                    // .TryAddSingleton<IMemberTranslator, OpenEdgeCompositeMemberTranslator>()
-                    );
+                );
 
             builder.TryAddCoreServices();
             
