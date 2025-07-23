@@ -19,7 +19,7 @@ EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows yo
 Install the NuGet package:
 
 ```bash
-Install-Package EntityFrameworkCore.OpenEdge.Extended
+dotnet add package EntityFrameworkCore.OpenEdge.Extended --version 9.0.0
 ```
 
 ### Configuration
