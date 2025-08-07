@@ -17,9 +17,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.0.3</Version>
+    <Version>9.0.4</Version>
     <PackageReleaseNotes>
-      - Version 9.0.3
+      - Version 9.0.4
         - Fixed issue with OFFSET/FETCH parameters not being inlined correctly in complex queries
         - Added support for nested queries with Skip/Take
     </PackageReleaseNotes>
