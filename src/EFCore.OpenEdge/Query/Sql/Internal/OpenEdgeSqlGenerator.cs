@@ -156,13 +156,13 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
         {
             // Handle COUNT(*) to cast result to INT to match EF Core expectations. This ensures that 'COUNT(*)' function is wrapped inside 'CAST (... AS INT)'.
             // The generated SQL will now be 'CAST(COUNT(*) AS INT)'
-            if (string.Equals(sqlFunctionExpression.Name, "COUNT", StringComparison.OrdinalIgnoreCase))
-            {
-                Sql.Append("CAST(");
-                base.VisitSqlFunction(sqlFunctionExpression);
-                Sql.Append(" AS INT)");
-                return sqlFunctionExpression;
-            }
+            // if (string.Equals(sqlFunctionExpression.Name, "COUNT", StringComparison.OrdinalIgnoreCase))
+            // {
+            //     Sql.Append("CAST(");
+            //     base.VisitSqlFunction(sqlFunctionExpression);
+            //     Sql.Append(" AS INT)");
+            //     return sqlFunctionExpression;
+            // }
             
             return base.VisitSqlFunction(sqlFunctionExpression);
         }

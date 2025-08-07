@@ -117,6 +117,36 @@ OFFSET 5 ROWS";
             normalizedSql.Should().Be(normalizedExpected, "Should generate proper OFFSET SQL for Skip");
         }
 
+        [Fact]
+        public void Nested_Subquery_With_Take_Should_Generate_Inlined_FETCH_At_All_Levels()
+        {
+            var (context, interceptor) = CreateContextWithSqlCapturing();
+
+            // Create a query with nested subquery similar to what OData might generate
+            // This simulates a scenario where there's a subquery with its own FETCH clause
+            var query = context.Customers
+                .Where(c => context.Orders
+                    .OrderBy(o => o.Id)
+                    .Take(2)  // This inner Take should generate an inlined FETCH
+                    .Any(o => o.CustomerId == c.Id))
+                .OrderBy(c => c.Id)
+                .Take(5)  // This outer Take should also generate an inlined FETCH
+                .ToList();
+
+            interceptor.CapturedSql.Should().NotBeEmpty("SQL should be captured for nested query");
+            var sql = interceptor.CapturedSql.First();
+
+            _output.WriteLine($"Nested query with Take generated SQL: {sql}");
+
+            // The SQL should NOT contain any '?' parameters in FETCH clauses
+            sql.Should().NotContain("FETCH FIRST ? ROWS", "All FETCH clauses should use inlined literal values, not parameters");
+            sql.Should().NotContain("FETCH NEXT ? ROWS", "All FETCH clauses should use inlined literal values, not parameters");
+            
+            // The SQL SHOULD contain inlined FETCH clauses with literal numbers
+            sql.Should().Match("*FETCH*2*ROWS*", "Inner Take(2) should generate inlined FETCH with literal 2");
+            sql.Should().Match("*FETCH*5*ROWS*", "Outer Take(5) should generate inlined FETCH with literal 5");
+        }
+        
         #endregion
     }
 }

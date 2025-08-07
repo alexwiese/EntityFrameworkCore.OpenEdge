@@ -67,14 +67,59 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 
                 if (extensionExpression is SelectExpression selectExpression)
                 {
+
+                    // By default, simple queries are generated with a single SelectExpression
+                    // For example:
+                    /**
+                      SelectExpression
+                        ├── Tables
+                        ├── Offset: SqlParameterExpression("p0")
+                        └── Limit: SqlParameterExpression("p1")
+                    */
+
+                    // However, when EF generates complex queries, it can create nested SelectExpressions
+                    // This is a common pattern when using Skip/Take with nested queries
+                    // For example:
+                    /**
+                      SelectExpression (outer)
+                        ├── Tables
+                        │   └── SelectExpression (inner subquery)
+                        │       ├── Tables (could have more nested levels)
+                        │       ├── Offset: SqlParameterExpression("p0")
+                        │       └── Limit: SqlParameterExpression("p1")
+                        ├── Offset: SqlParameterExpression("p2")
+                        └── Limit: SqlParameterExpression("p3")
+                    */
+
+                    // Therefore, the following code ensures that all cases are handled by recursively visiting all tables to 
+                    // make sure that all OFFSET/FETCH parameters are inlined as constants
+                    
+                    // First, recursively visit all tables to handle nested SelectExpressions
+                    var tables = selectExpression.Tables.ToList();
+                    var newTables = new List<TableExpressionBase>();
+                    var tablesChanged = false;
+
+                    foreach (var table in tables)
+                    {
+                        var visitedTable = Visit(table);
+                        newTables.Add((TableExpressionBase) visitedTable);
+
+                        if (visitedTable != table)
+                        {
+                            tablesChanged = true;
+                        }
+                    }
+
+                    // Then, inline parameters for this SelectExpression's OFFSET/FETCH
                     var newOffset = InlineParameter(selectExpression.Offset);
                     var newLimit = InlineParameter(selectExpression.Limit);
 
-                    if (newOffset != selectExpression.Offset || newLimit != selectExpression.Limit)
+                    // 'Re-build' if something has changed
+                    if (tablesChanged || newOffset != selectExpression.Offset || newLimit != selectExpression.Limit)
                     {
-                        // Create a new SelectExpression with the updated, inlined values
+                        // Create a new SelectExpression with the updated tables and inlined values
                         return selectExpression.Update(
-                            selectExpression.Tables,
+                            tablesChanged ? newTables : selectExpression.Tables,
                             selectExpression.Predicate,
                             selectExpression.GroupBy,
                             selectExpression.Having,
@@ -101,7 +146,7 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
                     return expression; // Return as-is if it's already a constant or null
                 }
 
-                // Look up the value from the dictionary we built in the constructor
+                // Look up the value from the dictionary of parameter values
                 if (_parameterValues.TryGetValue(parameterExpression.Name, out var value))
                 {
                     // Create a new SqlConstantExpression with the value.
