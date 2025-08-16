@@ -9,6 +9,39 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
     {
         private const int VarcharMaxSize = 32000;
 
+        /**
+         * DbType is a .NET enumeration that represents database data types in a provider-agnostic way.
+         * It's used by ADO.NET - a modern data access model - (which EF Core uses under the hood)
+         * to create database parameters and handle data conversion. When EF Core generates SQL and creates parameters,
+         * it needs to tell the underlying ADO.NET provider what type of parameter it is.
+         *
+         *  // When EF Core generates SQL like this:
+         *   SELECT * FROM Customers WHERE Age > @p0
+         *
+         *   // It needs to create an ADO.NET parameter:
+         *  var parameter = command.CreateParameter();
+         *  parameter.ParameterName = "@p0";
+         *  parameter.Value = 25;
+         *  parameter.DbType = DbType.Int32; // ← This tells ADO.NET how to handle the parameter
+         *
+         * Then the underlying provider (in this case ODBC) will:
+         *  a) Format the parameter value correctly for the database
+         *  b) Set the appropriate native database type
+         *  c) Handle data conversion between .NET and the database
+         */
+        
+        /*
+         * Essentially, EF Core is the one calling type mapping methods, forming EF Core → ADO.NET → ODBC chain.
+         *
+         * When executing this query:
+         *   var customer = context.Customers.Find(42);
+         * 
+         * EF Core:
+         *   1) Calls FindMapping(typeof(int)) to get IntTypeMapping
+         *   2) Uses mapping.DbType (DbType.Int32) to create parameter
+         *   3) ADO.NET creates OdbcParameter with correct OdbcType
+         *   4) ODBC driver sends properly formatted value to OpenEdge
+         */
         private readonly DateTimeTypeMapping _datetime = new DateTimeTypeMapping("datetime", DbType.DateTime);
         private readonly DateTimeOffsetTypeMapping _datetimeOffset = new DateTimeOffsetTypeMapping("datetime-tz", DbType.DateTimeOffset);
         private readonly DateTimeTypeMapping _date = new DateTimeTypeMapping("date", DbType.Date);
@@ -17,7 +50,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
 
         private readonly OpenEdgeBoolTypeMapping _boolean = new OpenEdgeBoolTypeMapping();
         private readonly ShortTypeMapping _smallint = new ShortTypeMapping("smallint", DbType.Int16);
-        private readonly ShortTypeMapping _tinyint = new ShortTypeMapping("tinyint", DbType.Byte);
+        private readonly ByteTypeMapping _tinyint = new ByteTypeMapping("tinyint", DbType.Byte);
         private readonly IntTypeMapping _integer = new IntTypeMapping("integer", DbType.Int32);
         private readonly LongTypeMapping _bigint = new LongTypeMapping("bigint");
 
@@ -36,6 +69,8 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
         public OpenEdgeTypeMappingSource(TypeMappingSourceDependencies dependencies, RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
+            // Mapping for code first scenarios.
+            // Used when EF Core knows the .NET type and needs to determine the database type
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
@@ -46,13 +81,15 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { typeof(byte), _tinyint },
                     { typeof(byte[]), _binary},
                     { typeof(double), _double },
-                    { typeof(DateTimeOffset), _datetime },
+                    { typeof(DateTimeOffset), _datetimeOffset  },
                     { typeof(short), _smallint },
                     { typeof(float), _float },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
                 };
 
+            // Mapping for database first scenarios or explicit column types ([Column(TypeName = "decimal(18,2)")]).
+            // Used when EF Core knows the database type and needs to determine the .NET type
             _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -63,7 +100,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "binary", _binary },
                     { "blob", _binary },
                     { "bit", _boolean},
-                    { "logical", _boolean},
+                    { "logical", _boolean },
                     { "char varying", _char },
                     { "char", _char },
                     { "character varying", _char },
@@ -93,7 +130,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "text", _char},
                     { "time", _time },
                     { "timestamp", _timeStamp },
-                    { "tinyint", _tinyint},
+                    { "tinyint", _tinyint },
                     { "varbinary", _binary },
                     { "varchar", _varchar }
                 };
@@ -106,24 +143,51 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
+            // The .NET type (e.g., typeof(string))
             var clrType = mappingInfo.ClrType;
+            
+            // Full database type name (e.g., "varchar(100)")
             var storeTypeName = mappingInfo.StoreTypeName;
+            
+            // Base type name (e.g., "varchar")
             var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
 
+            // Database first or explicit column type scenario
             if (storeTypeName != null)
             {
+                /*
+                 * Handle float logic. Example case:
+                 * 
+                 * Handling case with explicit column type annotation
+                 *   public class Product
+                 *   {
+                 *       [Column(TypeName = "float(24)")] // ← Store type specified
+                 *       public float Precision { get; set; } // ← CLR type known
+                 *   }
+                 *
+                 * EF Core calls FindRawMapping with:
+                 *   clrType = typeof(float)
+                 *   storeTypeName = "float(24)"
+                 *   storeTypeNameBase = "float"
+                 *   mappingInfo.Size = 24
+                 */
                 if (clrType == typeof(float)
                     && mappingInfo.Size != null
                     && mappingInfo.Size <= 24
                     && (storeTypeNameBase.Equals("float", StringComparison.OrdinalIgnoreCase)
                         || storeTypeNameBase.Equals("double precision", StringComparison.OrdinalIgnoreCase)))
                 {
-                    return _float;
+                    return _float; // Use single precision
                 }
+                
+                // Otherwise it would use _double (double precision)
 
+                // Try full name first: "varchar(100)"
                 if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
+                    // Then try base name: "varchar" 
                     || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                 {
+                    // Some kind of incompatibility check
                     return clrType == null
                            || mapping.ClrType == clrType
                         ? mapping
@@ -131,6 +195,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                 }
             }
 
+            // Code first scenario
             if (clrType != null)
             {
                 if (_clrTypeMappings.TryGetValue(clrType, out var mapping))
@@ -138,6 +203,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     return mapping;
                 }
 
+                // Special handling for string types with size/length specifications
                 if (clrType == typeof(string))
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;

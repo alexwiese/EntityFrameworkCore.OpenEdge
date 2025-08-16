@@ -5,6 +5,19 @@ namespace EntityFrameworkCore.OpenEdge.Extensions
 {
     public static class OpenEdgeDataReaderExtensions
     {
+        /*
+         * GetValueOrDefault is NOT a native method on DbDataReader.
+         * The compiler searches for extension methods in scope that match
+         *   a) First parameter type: DbDataReader (matches reader.Object)
+         *   b) Method name: GetValueOrDefault 
+         * 
+         * The compiler transforms this call:
+         *   // How it is called:
+         *   reader.Object.GetValueOrDefault<int>("TestColumn")
+         *
+         *   // What the compiler actually calls:
+         *   OpenEdgeDataReaderExtensions.GetValueOrDefault<int>(reader.Object, "TestColumn")
+         */
         public static T GetValueOrDefault<T>(this DbDataReader reader, string name)
         {
             var idx = reader.GetOrdinal(name);

@@ -13,6 +13,10 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal
 
         public override string StatementTerminator { get; } = "";
 
+        public override string GenerateParameterName(string name)
+        {
+            return "?"; // Always return ? for positional parameters
+        }
 
         public override void DelimitIdentifier(StringBuilder builder, string identifier)
         {

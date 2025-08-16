@@ -1,36 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
-    <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
-    <LangVersion>7.2</LangVersion>
-    <VersionPrefix>1.0.0</VersionPrefix>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../efcoreoe.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <Authors>Alex Wiese</Authors>
-    <Description>Entity Framework Core provider for Progress OpenEdge</Description>
-    <PackageProjectUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</RepositoryUrl>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>EntityFrameworkCore.OpenEdge.Extended</AssemblyName>
+    <RootNamespace>EntityFrameworkCore.OpenEdge.Extended</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Authors>Ernests Rudzitis</Authors>
+    <Description>An extended and modernized Entity Framework Core provider for Progress OpenEdge databases, supporting EF Core 9</Description>
+    <PackageProjectUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
+    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql;extended</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.11</Version>
-    <PackageReleaseNotes>Map missing types clob, blob, double, recid, don't insert rowid.</PackageReleaseNotes>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>9.0.4</Version>
+    <PackageReleaseNotes>
+      - Version 9.0.4
+        - Fixed issue with OFFSET/FETCH parameters not being inlined correctly in complex queries
+        - Added support for nested queries with Skip/Take
+    </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>efcore.openedge.extended.png</PackageIcon>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[2.1.4,2.2)" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="[2.1.4,2.2)" PrivateAssets="none" />
-    <PackageReference Include="System.Data.Odbc" Version="4.5.0" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="efcore.openedge.extended.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.6" />
+    <PackageReference Include="System.Data.Odbc" Version="9.0.6" />
   </ItemGroup>
 
 </Project>
