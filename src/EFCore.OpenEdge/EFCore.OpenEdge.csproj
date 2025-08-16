@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>EntityFrameworkCore.OpenEdge.Extended</AssemblyName>
-    <RootNamespace>EntityFrameworkCore.OpenEdge.Extended</RootNamespace>
+    <AssemblyName>EntityFrameworkCore.OpenEdge</AssemblyName>
+    <RootNamespace>EntityFrameworkCore.OpenEdge</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <Authors>Ernests Rudzitis</Authors>
-    <Description>An extended and modernized Entity Framework Core provider for Progress OpenEdge databases, supporting EF Core 9</Description>
-    <PackageProjectUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/erudzitis/EntityFrameworkCore.OpenEdge</RepositoryUrl>
+    <Authors>Alex Wiese, Ernests Rudzitis</Authors>
+    <Description>Entity Framework Core provider for Progress OpenEdge databases</Description>
+    <PackageProjectUrl>https://github.com/alexwiese/EFCore.OpenEdge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alexwiese/EFCore.OpenEdge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql;extended</PackageTags>
+    <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
