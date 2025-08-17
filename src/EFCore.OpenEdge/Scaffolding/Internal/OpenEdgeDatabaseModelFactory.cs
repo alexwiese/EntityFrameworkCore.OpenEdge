@@ -16,7 +16,7 @@ namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
 {
     public class OpenEdgeDatabaseModelFactory : IDatabaseModelFactory
     {
-        protected internal const string DatabaseModelDefaultSchema = "pub";
+        private const string DatabaseModelDefaultSchema = "pub";
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
 
         public OpenEdgeDatabaseModelFactory(IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
@@ -24,15 +24,15 @@ namespace EntityFrameworkCore.OpenEdge.Scaffolding.Internal
             _logger = logger;
         }
 
-        public DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             using (var connection = new OdbcConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
-        public DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             var databaseModel = new DatabaseModel();
 
