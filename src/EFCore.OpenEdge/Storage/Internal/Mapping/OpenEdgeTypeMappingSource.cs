@@ -44,9 +44,9 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
          */
         private readonly DateTimeTypeMapping _datetime = new DateTimeTypeMapping("datetime", DbType.DateTime);
         private readonly DateTimeOffsetTypeMapping _datetimeOffset = new DateTimeOffsetTypeMapping("datetime-tz", DbType.DateTimeOffset);
-        private readonly DateTimeTypeMapping _date = new DateTimeTypeMapping("date", DbType.Date);
         private readonly DateTimeTypeMapping _timeStamp = new DateTimeTypeMapping("timestamp", DbType.DateTime);
         private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time", DbType.Time);
+        private readonly OpenEdgeDateOnlyTypeMapping _dateOnly = new OpenEdgeDateOnlyTypeMapping("date", DbType.Date);
 
         private readonly OpenEdgeBoolTypeMapping _boolean = new OpenEdgeBoolTypeMapping();
         private readonly ShortTypeMapping _smallint = new ShortTypeMapping("smallint", DbType.Int16);
@@ -85,7 +85,8 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { typeof(short), _smallint },
                     { typeof(float), _float },
                     { typeof(decimal), _decimal },
-                    { typeof(TimeSpan), _time }
+                    { typeof(TimeSpan), _time },
+                    { typeof(DateOnly), _dateOnly },
                 };
 
             // Mapping for database first scenarios or explicit column types ([Column(TypeName = "decimal(18,2)")]).
@@ -106,7 +107,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "character varying", _char },
                     { "character", _char },
                     { "clob", _char },
-                    { "date", _date },
+                    { "date", _dateOnly },
                     { "datetime", _datetime },
                     { "datetime2", _datetime },
                     { "datetimeoffset", _datetimeOffset },

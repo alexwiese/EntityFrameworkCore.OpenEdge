@@ -12,7 +12,7 @@ EntityFrameworkCore.OpenEdge is an **Entity Framework Core 9 provider** that let
 
 ### Install
 ```bash
-dotnet add package EntityFrameworkCore.OpenEdge --version 9.0.4
+dotnet add package EntityFrameworkCore.OpenEdge --version 9.0.6
 ```
 
 ### DSN-less connection
@@ -52,6 +52,7 @@ Scaffold-DbContext "dsn=MyDb;password=mypassword" EntityFrameworkCore.OpenEdge -
 | Scaffolding              | ✅     | `Scaffold-DbContext`                                                     |
 | Nested queries           | ✅     | `Skip`/`Take` inside sub-queries (new in 9.0.4)                           |
 | DateTime literal support | ✅     | `{ ts 'yyyy-MM-dd HH:mm:ss' }` formatting                                |
+| Date/Time operations     | ✅     | `DateOnly` properties (`Year`, `Month`, `Day`, `DayOfYear`, `DayOfWeek`); methods (`FromDateTime`, `AddDays`, `AddMonths`, `AddYears`) |
 
 ---
 

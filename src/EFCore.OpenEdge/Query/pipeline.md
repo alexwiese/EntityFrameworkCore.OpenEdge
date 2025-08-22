@@ -32,6 +32,7 @@ This phase translates the generic LINQ expression tree into a relational-specifi
 2.  **Queryable Method Translation (`IQueryableMethodTranslatingExpressionVisitor`)**
     *   **Component:** `OpenEdgeQueryableMethodTranslatingExpressionVisitor`.
     *   **Responsibility:** Translates top-level LINQ methods like `Where`, `OrderBy`, `Select`, `Skip`, and `Take` into the corresponding parts of a `SelectExpression` (e.g., `Predicate`, `Orderings`, `Limit`, `Offset`).
+    *   **OpenEdge Customization:** Tracks ORDER BY context via the `IsTranslatingOrderBy` flag. This flag is crucial for coordinating with `SqlTranslatingExpressionVisitor` to prevent boolean transformations in ORDER BY clauses.
 
 3.  **Member and Method Call Translation (`IMemberTranslator` / `IMethodCallTranslator`)**
     *   **Components:**
@@ -44,7 +45,12 @@ This phase translates the generic LINQ expression tree into a relational-specifi
 4.  **General Expression to SQL Translation (`RelationalSqlTranslatingExpressionVisitor`)**
     *   **Component:** `OpenEdgeSqlTranslatingExpressionVisitor`.
     *   **Responsibility:** Translates the remaining C# expressions inside the LINQ query (e.g., boolean logic, member access) into `SqlExpression` nodes.
-    *   **OpenEdge Customization:** Overrides `VisitMember` to handle OpenEdge's lack of implicit boolean evaluation. It transforms a boolean property access like `c.IsActive` into an explicit comparison `c.IsActive = 1`.
+    *   **OpenEdge Customizations:**
+        *   **VisitMember:** Context-aware boolean handling based on SQL clause type:
+            *   In WHERE/HAVING/JOIN (predicates): Transforms `c.IsActive` → `c.IsActive = 1`
+            *   In ORDER BY: Leaves as `c.IsActive` (checks `IsTranslatingOrderBy` flag)
+            *   In SELECT: Leaves as `c.IsActive` (handled later by SqlGenerator)
+        *   **Context Tracking:** Maintains `_isInPredicateContext` and `_isInComparisonContext` flags to determine when boolean transformations are needed.
 
 5.  **Query Post-processing (`IQueryTranslationPostprocessor`)**
     *   **Component:** `OpenEdgeQueryTranslationPostprocessor`.
@@ -54,10 +60,12 @@ This phase translates the generic LINQ expression tree into a relational-specifi
 
 ### **Phase 3: Parameter-Based SQL Processing**
 *   **Input:** `SelectExpression` tree with parameter placeholders.
-*   **Output:** `SelectExpression` tree with literal values for `OFFSET`/`FETCH`.
+*   **Output:** `SelectExpression` tree with literal values for `OFFSET`/`FETCH` and converted boolean parameters.
 *   **Component:** `OpenEdgeParameterBasedSqlProcessor`.
 *   **Responsibility:** This is an intermediate stage that has access to both the query expression and the actual parameter values.
-*   **OpenEdge Customization:** OpenEdge SQL requires `OFFSET` and `FETCH` clauses to use literal integer values, not parameters. This processor finds `SqlParameterExpression` nodes for `Offset` and `Limit` and replaces them with `SqlConstantExpression` nodes containing the actual integer values.
+*   **OpenEdge Customizations:**
+    *   **OffsetValueInliningExpressionVisitor:** OpenEdge SQL requires `OFFSET` and `FETCH` clauses to use literal integer values, not parameters. This visitor finds `SqlParameterExpression` nodes for `Offset` and `Limit` and replaces them with `SqlConstantExpression` nodes containing the actual integer values.
+    *   **BooleanParameterConversionVisitor:** Converts boolean parameters to integer constants (0/1) for comparisons, since OpenEdge stores booleans as integers.
 
 ---
 
@@ -76,6 +84,30 @@ This phase translates the generic LINQ expression tree into a relational-specifi
 
 ---
 
+### **Boolean Handling Flow**
+
+OpenEdge stores boolean values as integers (0/1) and has specific requirements for how they appear in different SQL contexts. Here's how boolean expressions are handled throughout the pipeline:
+
+#### **Context-Specific Boolean Transformations**
+
+| SQL Context | Input Expression | Transformation | Component | Result |
+|------------|------------------|----------------|-----------|---------|
+| WHERE/HAVING | `c.IsActive` | Add `= 1` comparison | `SqlTranslatingExpressionVisitor.VisitMember()` | `WHERE c.IsActive = 1` |
+| ORDER BY | `c.IsActive` | No transformation | `SqlTranslatingExpressionVisitor.VisitMember()` (checks `IsTranslatingOrderBy`) | `ORDER BY c.IsActive` |
+| SELECT | `c.IsActive` | Wrap in CASE WHEN | `SqlGenerator.VisitProjection()` | `SELECT CASE WHEN c.IsActive = 1 THEN 1 ELSE 0 END` |
+| JOIN ON | `a.IsActive` | Add `= 1` comparison | `SqlTranslatingExpressionVisitor.VisitMember()` | `ON a.IsActive = 1` |
+
+#### **The Coordination Mechanism**
+
+1. **QueryableMethodTranslatingExpressionVisitor** sets `IsTranslatingOrderBy = true` when processing ORDER BY
+2. **SqlTranslatingExpressionVisitor** receives a reference to the QueryableMethodTranslatingExpressionVisitor instance
+3. **VisitMember()** checks this flag before applying transformations
+4. **SqlGenerator** handles final formatting for SELECT projections
+
+This design ensures thread safety through instance-based state (not static) and proper SQL generation for OpenEdge's specific boolean requirements.
+
+---
+
 ### **Visualized Flow**
 
 ```
@@ -91,12 +123,14 @@ This phase translates the generic LINQ expression tree into a relational-specifi
 │ ┌─────────────────────────────┐ │
 │ │ QueryableMethodTranslator   │ │ ← .Skip(5) -> Offset: 5
 │ │                             │ │   .Take(10) -> Limit: 10
+│ │                             │ │   .OrderBy() -> Sets IsTranslatingOrderBy
 │ └─────────────────────────────┘ │
 │ ┌─────────────────────────────┐ │
 │ │ MethodCallTranslator        │ │ ← .StartsWith("A") -> LIKE 'A%'
 │ └─────────────────────────────┘ │
 │ ┌─────────────────────────────┐ │
-│ │ SqlTranslatingVisitor       │ │ ← c.IsActive -> c.IsActive = 1
+│ │ SqlTranslatingVisitor       │ │ ← WHERE: c.IsActive -> c.IsActive = 1
+│ │                             │ │   ORDER BY: c.IsActive -> c.IsActive
 │ └─────────────────────────────┘ │
 └─────────┬───────────────────────┘
           │
