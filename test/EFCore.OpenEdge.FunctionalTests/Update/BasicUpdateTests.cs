@@ -109,7 +109,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Update
                 {
                     Id = 100,
                     CustomerId = 1, // John Doe
-                    OrderDate = DateTime.Now,
+                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
                     TotalAmount = 129.98m,
                     Status = "Processing"
                 };

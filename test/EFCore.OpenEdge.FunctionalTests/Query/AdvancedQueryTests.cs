@@ -212,7 +212,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             using var context = CreateContext();
 
             // Calculate the date threshold on the client side
-            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            var thirtyDaysAgo = DateOnly.FromDateTime(DateTime.Now).AddDays(-30);
 
             var recentOrders = context.Orders
                 .Where(o => o.OrderDate >= thirtyDaysAgo)
