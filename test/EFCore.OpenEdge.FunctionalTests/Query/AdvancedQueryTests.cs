@@ -25,7 +25,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
             var cityGroups = context.Customers
                 .GroupBy(c => c.City)
-                .Select(g => new { City = g.Key, Count = g.Count() })
+                .Select(g => new { City = g.Key, Count = (long)g.Count() })
                 .ToList();
 
             cityGroups.Should().NotBeNull();
@@ -42,7 +42,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                 { 
                     CategoryId = g.Key, 
                     TotalValue = g.Sum(p => p.Price),
-                    ProductCount = g.Count()
+                    ProductCount = (long)g.Count()
                 })
                 .ToList();
 

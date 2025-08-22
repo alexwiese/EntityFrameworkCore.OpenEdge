@@ -11,14 +11,9 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
     /// Tests for boolean parameter conversion functionality.
     /// Ensures that boolean parameters are correctly converted to integer values for OpenEdge.
     /// </summary>
-    public class BooleanParameterTest : ECommerceTestBase
+    public class BooleanParameterTest(ITestOutputHelper output) : ECommerceTestBase
     {
-        private readonly ITestOutputHelper _output;
-
-        public BooleanParameterTest(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        private readonly ITestOutputHelper _output = output;
 
         [Fact]
         public void BooleanParameter_False_GeneratesCorrectSQL()

@@ -6,11 +6,31 @@ EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows yo
 
 ## Features
 
+### Core Capabilities
 * **Querying**: `SELECT`, `WHERE`, `ORDER BY`, `GROUP BY`, `SKIP`/`TAKE` (paging), `COUNT`, `SUM`, `FIRST`
 * **Joins**: `INNER JOIN`, `LEFT JOIN`, `Include` for navigation properties, filtered includes
-* **String Operations**: `Contains`, `StartsWith`, `EndsWith` (translated to `LIKE`), `Length` property
 * **Data Manipulation**: `INSERT`, `UPDATE`, `DELETE` operations with OpenEdge-optimized SQL generation
 * **Scaffolding**: Reverse engineering of existing OpenEdge database schemas (Database First)
+
+### Type Support
+* **Boolean Handling**: Automatic conversion between .NET bool and OpenEdge integer (0/1) storage
+* **DateOnly Support**: Full support for DateOnly type with DATE columns (v9.0.5+)
+* **DateTime Formatting**: ODBC timestamp escape sequences for proper datetime handling
+
+### String Operations
+* **LIKE Operations**: `Contains`, `StartsWith`, `EndsWith` translated to optimized `LIKE` patterns
+* **String Functions**: `Length` property translated to `LENGTH()` function
+* **Concatenation**: Proper handling of string concatenation with OpenEdge's CONCAT limitations
+
+### Date/Time Operations (v9.0.5+)
+* **DateOnly Properties**: `Year`, `Month`, `Day`, `DayOfYear`, `DayOfWeek` 
+* **DateOnly Methods**: `FromDateTime`, `AddDays`, `AddMonths`, `AddYears`
+* **DateTime Support**: Proper formatting with `{ ts 'yyyy-MM-dd HH:mm:ss' }` syntax
+
+### Query Optimizations
+* **Parameter Inlining**: Automatic inlining of OFFSET/FETCH values for OpenEdge compatibility
+* **Boolean Context Awareness**: Boolean transformations based on SQL clause context (WHERE, ORDER BY, SELECT) to match OpenEdge expectations
+* **Positional Parameters**: Conversion from named to positional `?` parameters
 
 ## Getting Started
 
@@ -19,7 +39,7 @@ EntityFrameworkCore.OpenEdge is an Entity Framework Core provider that allows yo
 Install the NuGet package:
 
 ```bash
-dotnet add package EntityFrameworkCore.OpenEdge.Extended --version 9.0.4
+dotnet add package EntityFrameworkCore.OpenEdge.Extended --version 9.0.6
 ```
 
 ### Configuration
@@ -148,7 +168,8 @@ The update pipeline handles OpenEdge's specific requirements:
 - **Single Command Execution**: Each modification is processed individually in its own command batch
 - **No `RETURNING` Support**: OpenEdge doesn't support RETURNING clauses, affecting concurrency detection and identity retrieval
 - **Parameter Ordering**: Carefully orders parameters to match positional `?` placeholders in generated SQL
-- **DateTime Formatting**: Uses ODBC timestamp escape sequences `{ ts 'yyyy-MM-dd HH:mm:ss' }` for datetime literals, which OpenEdge requires for proper datetime handling
+- **Hybrid Literal/Parameter SQL**: Uses raw values for write operations and positional parameters for conditions
+- **DateTime Formatting**: Uses ODBC timestamp escape sequences `{ ts 'yyyy-MM-dd HH:mm:ss' }` for datetime and DateOnly literals
 
 ## Query Pipeline Deep Dive
 

@@ -7,14 +7,9 @@ using Xunit.Abstractions;
 
 namespace EFCore.OpenEdge.FunctionalTests.Query
 {
-    public class DateOnlyMethodTranslationTests : ECommerceTestBase
+    public class DateOnlyMethodTranslationTests(ITestOutputHelper output) : ECommerceTestBase
     {
-        private readonly ITestOutputHelper _output;
-
-        public DateOnlyMethodTranslationTests(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        private readonly ITestOutputHelper _output = output;
 
         [Fact]
         public void CanUseAddDays()

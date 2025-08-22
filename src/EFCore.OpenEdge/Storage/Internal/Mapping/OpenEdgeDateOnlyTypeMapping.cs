@@ -63,7 +63,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
             if (value is DateOnly dateOnly)
             {
                 var dateTime = dateOnly.ToDateTime(TimeOnly.MinValue);
-                return $"DATE('{dateTime:yyyy-MM-dd}')";
+                return $"{{ ts '{dateTime:yyyy-MM-dd HH:mm:ss}' }}";
             }
 
             return base.GenerateNonNullSqlLiteral(value);
