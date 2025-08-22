@@ -17,8 +17,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.0.5</Version>
+    <Version>9.0.6</Version>
     <PackageReleaseNotes>
+      - Version 9.0.6
+        - Fixed issue with boolean comparison not being translated correctly in some cases
+        - Added support for DateOnly type in queries
+
       - Version 9.0.5
         - Added support for DateOnly type. This ensures that OpenEdge DATE columns are mapped to DateOnly type in EF Core.
 

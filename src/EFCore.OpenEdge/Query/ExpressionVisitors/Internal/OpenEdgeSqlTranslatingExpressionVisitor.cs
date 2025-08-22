@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 {
@@ -11,6 +12,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
     /// </summary>
     public class OpenEdgeSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
+        private bool _isInComparisonContext = false;
+        
         public OpenEdgeSqlTranslatingExpressionVisitor(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext,
@@ -57,8 +60,9 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
         {
             var result = base.VisitMember(memberExpression);
             
-            // Check if this is a boolean member that needs explicit comparison for OpenEdge
-            if (result is SqlExpression sqlResult && sqlResult.Type == typeof(bool))
+            // Only transform boolean members to comparisons when NOT already in a comparison context
+            // This prevents double comparisons like (column = 1) = 0
+            if (!_isInComparisonContext && result is SqlExpression sqlResult && sqlResult.Type == typeof(bool))
             {
                 // Transform boolean member to explicit comparison with 1
                 // This ensures OpenEdge gets "boolean_column = 1" instead of just "boolean_column"
@@ -70,6 +74,52 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             }
             
             return result;
+        }
+
+        /// <summary>
+        /// Handles binary expressions to set comparison context.
+        /// </summary>
+        /// <param name="binaryExpression">The binary expression to visit</param>
+        /// <returns>The visited expression</returns>
+        /// <remarks>
+        /// This method sets a flag when inside a comparison to prevent boolean members
+        /// from being transformed to comparisons, avoiding double comparisons like (column = 1) = 0.
+        /// The actual boolean-to-integer conversion is handled by OpenEdgeParameterBasedSqlProcessor.
+        /// </remarks>
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            // If this is a comparison operation, set the context flag to prevent
+            // boolean members from being transformed to comparisons
+            var oldIsInComparisonContext = _isInComparisonContext;
+
+            if (IsBooleanComparison(binaryExpression))
+            {
+                _isInComparisonContext = true;
+            }
+            
+            try
+            {
+                return base.VisitBinary(binaryExpression);
+            }
+            finally
+            {
+                _isInComparisonContext = oldIsInComparisonContext;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the expression is a comparison operation.
+        /// </summary>
+        private static bool IsBooleanComparison(BinaryExpression expression)
+        {
+            return expression.NodeType == ExpressionType.Equal ||
+                    expression.NodeType == ExpressionType.NotEqual ||
+                    expression.NodeType == ExpressionType.GreaterThan ||
+                    expression.NodeType == ExpressionType.GreaterThanOrEqual ||
+                    expression.NodeType == ExpressionType.LessThan ||
+                    expression.NodeType == ExpressionType.LessThanOrEqual ||
+                    expression.NodeType == ExpressionType.AndAlso ||
+                    expression.NodeType == ExpressionType.OrElse;
         }
     }
 }
