@@ -184,15 +184,27 @@ namespace EntityFrameworkCore.OpenEdge.Query.Sql.Internal
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
-            // OpenEdge doesn't support boolean expressions directly in SELECT clauses (e.g., SELECT c.IsActive).
+            // OpenEdge doesn't support boolean expressions directly in SELECT clauses.
             // They must be wrapped in CASE statements: CASE WHEN condition THEN 1 ELSE 0 END
-            if (projectionExpression.Expression.Type == typeof(bool) && 
-                projectionExpression.Expression is SqlBinaryExpression binaryExpression)
+            if (projectionExpression.Expression.Type == typeof(bool))
             {
                 Sql.Append("CASE WHEN ");
-                Visit(binaryExpression);
+                
+                // If it's already a comparison expression, use it as-is
+                // Otherwise, we need to compare it with 1 (for boolean columns stored as integers)
+                if (projectionExpression.Expression is SqlBinaryExpression)
+                {
+                    Visit(projectionExpression.Expression);
+                }
+                else
+                {
+                    Visit(projectionExpression.Expression);
+                    Sql.Append(" = 1");
+                }
+                
                 Sql.Append(" THEN 1 ELSE 0 END");
                 
+                // Handle alias if present
                 if (!string.IsNullOrEmpty(projectionExpression.Alias))
                 {
                     Sql.Append(" AS ");
