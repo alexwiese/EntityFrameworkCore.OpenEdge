@@ -97,7 +97,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                                              select new 
                                              {
                                                  CustomerName = customer.Name,
-                                                 OrderDate = order != null ? order.OrderDate : (DateTime?)null
+                                                 OrderDate = order != null ? order.OrderDate : (DateOnly?)null
                                              };
 
             var results = customersWithOptionalOrders.ToList();

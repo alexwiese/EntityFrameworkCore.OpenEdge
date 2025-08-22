@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 {
@@ -32,8 +33,13 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             // First, let the base class do its work (e.g. nullability processing)
             queryExpression = base.Optimize(queryExpression, parametersValues, out canCache);
 
-            // Now, run our custom visitor to inline OFFSET/FETCH values
-            return new OffsetValueInliningExpressionVisitor(Dependencies.SqlExpressionFactory, parametersValues).Visit(queryExpression);
+            // Inline OFFSET/FETCH values
+            queryExpression = new OffsetValueInliningExpressionVisitor(Dependencies.SqlExpressionFactory, parametersValues).Visit(queryExpression);
+            
+            // Convert boolean parameters to integer values for OpenEdge compatibility
+            queryExpression = new BooleanParameterConversionVisitor(Dependencies.SqlExpressionFactory, Dependencies.TypeMappingSource, parametersValues).Visit(queryExpression);
+            
+            return queryExpression;
         }
 
         /// <summary>
@@ -157,6 +163,130 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
 
                 // Should not happen, but as a fallback, return the original parameter
                 return parameterExpression;
+            }
+        }
+
+        /// <summary>
+        /// Visitor that converts boolean parameters in comparisons to integer values for OpenEdge compatibility.
+        /// OpenEdge stores booleans as integers (0/1), so we need to convert boolean parameters accordingly.
+        /// </summary>
+        private sealed class BooleanParameterConversionVisitor : ExpressionVisitor
+        {
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+            private readonly IRelationalTypeMappingSource _typeMappingSource;
+            #nullable enable
+            private readonly IReadOnlyDictionary<string, object?> _parameterValues;
+            private readonly RelationalTypeMapping? _intTypeMapping;
+
+            public BooleanParameterConversionVisitor(
+                ISqlExpressionFactory sqlExpressionFactory,
+                IRelationalTypeMappingSource typeMappingSource,
+                IReadOnlyDictionary<string, object?> parameterValues)
+            {
+                _sqlExpressionFactory = sqlExpressionFactory;
+                _typeMappingSource = typeMappingSource;
+                _parameterValues = parameterValues;
+                _intTypeMapping = _typeMappingSource.FindMapping(typeof(int));
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is ShapedQueryExpression shapedQuery)
+                {
+                    var newQueryExpression = Visit(shapedQuery.QueryExpression);
+                    return newQueryExpression != shapedQuery.QueryExpression
+                        ? shapedQuery.Update(newQueryExpression, shapedQuery.ShaperExpression)
+                        : shapedQuery;
+                }
+
+                // Handle binary expressions (comparisons)
+                if (extensionExpression is SqlBinaryExpression sqlBinary)
+                {
+                    var transformed = TryTransformBooleanComparison(sqlBinary);
+                    if (transformed != null)
+                        return transformed;
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
+
+            /// <summary>
+            /// Attempts to transform a boolean comparison to use integer values.
+            /// This is needed because OpenEdge doesn't have proper boolean data type.
+            /// We convert boolean values to integers (0/1) and then perform the comparison.
+            /// </summary>
+            private SqlExpression? TryTransformBooleanComparison(SqlBinaryExpression sqlBinary)
+            {
+                if (sqlBinary.OperatorType != ExpressionType.Equal && 
+                    sqlBinary.OperatorType != ExpressionType.NotEqual)
+                    return null;
+
+                var left = sqlBinary.Left;
+                var right = sqlBinary.Right;
+                
+                // Try to convert right side if left is boolean
+                if (left.Type == typeof(bool))
+                {
+                    var intConstant = TryConvertBooleanToInteger(right);
+                    if (intConstant != null)
+                    {
+                        return CreateComparison(sqlBinary.OperatorType, left, intConstant);
+                    }
+                }
+                
+                // Try to convert left side if right is boolean
+                if (right.Type == typeof(bool))
+                {
+                    var intConstant = TryConvertBooleanToInteger(left);
+                    if (intConstant != null)
+                    {
+                        return CreateComparison(sqlBinary.OperatorType, intConstant, right);
+                    }
+                }
+
+                return null;
+            }
+
+            /// <summary>
+            /// Creates a comparison expression based on the operator type.
+            /// </summary>
+            private SqlBinaryExpression CreateComparison(ExpressionType operatorType, SqlExpression left, SqlExpression right)
+            {
+                return operatorType == ExpressionType.Equal
+                    ? (SqlBinaryExpression)_sqlExpressionFactory.Equal(left, right)
+                    : (SqlBinaryExpression)_sqlExpressionFactory.NotEqual(left, right);
+            }
+
+            /// <summary>
+            /// Converts a boolean SqlExpression (parameter or constant) to an integer SqlConstantExpression.
+            /// Returns null if the expression cannot be converted.
+            /// </summary>
+            private SqlConstantExpression? TryConvertBooleanToInteger(SqlExpression expression)
+            {
+                // Handle boolean parameter
+                if (expression is SqlParameterExpression paramExpr)
+                {
+                    if (_parameterValues.TryGetValue(paramExpr.Name, out var value) && value is bool boolValue)
+                    {
+                        return CreateIntegerConstant(boolValue);
+                    }
+                }
+                // Handle boolean constant
+                else if (expression is SqlConstantExpression { Value: bool constBoolValue })
+                {
+                    return CreateIntegerConstant(constBoolValue);
+                }
+
+                return null;
+            }
+
+            /// <summary>
+            /// Creates an integer SqlConstantExpression from a boolean value.
+            /// </summary>
+            private SqlConstantExpression CreateIntegerConstant(bool boolValue)
+            {
+                var intValue = boolValue ? 1 : 0;
+                return (SqlConstantExpression)_sqlExpressionFactory.Constant(intValue, _intTypeMapping);
             }
         }
     }
