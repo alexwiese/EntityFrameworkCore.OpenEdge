@@ -6,23 +6,14 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
     /// Factory for creating OpenEdgeQueryTranslationPostprocessor instances.
     /// Replaces the old QueryModelGenerator pattern.
     /// </summary>
-    public class OpenEdgeQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
+    public class OpenEdgeQueryTranslationPostprocessorFactory(
+        QueryTranslationPostprocessorDependencies dependencies,
+        RelationalQueryTranslationPostprocessorDependencies relationalDependencies) : IQueryTranslationPostprocessorFactory
     {
-        private readonly QueryTranslationPostprocessorDependencies _dependencies;
-        private readonly RelationalQueryTranslationPostprocessorDependencies _relationalDependencies;
-
-        public OpenEdgeQueryTranslationPostprocessorFactory(
-            QueryTranslationPostprocessorDependencies dependencies,
-            RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
-        {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
-        }
-
         public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
             => new OpenEdgeQueryTranslationPostprocessor(
-                _dependencies,
-                _relationalDependencies,
+                dependencies,
+                relationalDependencies,
                 (RelationalQueryCompilationContext) queryCompilationContext);
     }
 }

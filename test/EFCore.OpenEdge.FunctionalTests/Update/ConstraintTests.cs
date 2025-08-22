@@ -73,7 +73,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Update
                 {
                     Id = 1800,
                     CustomerId = 999, // Non-existent customer ID
-                    OrderDate = DateTime.Now,
+                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
                     TotalAmount = 100.00m,
                     Status = "Invalid Customer Order"
                 };

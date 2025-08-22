@@ -15,7 +15,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Shared.Models
         public int CustomerId { get; set; }
 
         [Required]
-        public DateTime OrderDate { get; set; }
+        public DateOnly? OrderDate { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal TotalAmount { get; set; }

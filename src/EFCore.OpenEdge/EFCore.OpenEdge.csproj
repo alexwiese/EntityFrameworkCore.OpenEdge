@@ -7,8 +7,8 @@
     <LangVersion>latest</LangVersion>
     <Authors>Alex Wiese, Ernests Rudzitis</Authors>
     <Description>Entity Framework Core provider for Progress OpenEdge databases</Description>
-    <PackageProjectUrl>https://github.com/alexwiese/EFCore.OpenEdge</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/alexwiese/EFCore.OpenEdge</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alexwiese/EntityFrameworkCore.OpenEdge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>openedge;progress;Entity Framework Core;entity-framework-core;ef;efcore;orm;sql</PackageTags>
   </PropertyGroup>
@@ -17,8 +17,15 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.0.4</Version>
+    <Version>9.0.6</Version>
     <PackageReleaseNotes>
+      - Version 9.0.6
+        - Fixed issue with boolean comparison not being translated correctly in some cases
+        - Added support for DateOnly type in queries
+
+      - Version 9.0.5
+        - Added support for DateOnly type. This ensures that OpenEdge DATE columns are mapped to DateOnly type in EF Core.
+
       - Version 9.0.4
         - Fixed issue with OFFSET/FETCH parameters not being inlined correctly in complex queries
         - Added support for nested queries with Skip/Take

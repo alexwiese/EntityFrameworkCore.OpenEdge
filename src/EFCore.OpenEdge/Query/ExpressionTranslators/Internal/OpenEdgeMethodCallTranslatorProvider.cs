@@ -11,7 +11,8 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionTranslators.Internal
             : base(dependencies)
         {
             AddTranslators([
-                new OpenEdgeStringMethodCallTranslator(dependencies.SqlExpressionFactory)
+                new OpenEdgeStringMethodCallTranslator(dependencies.SqlExpressionFactory),
+                new OpenEdgeDateOnlyMethodCallTranslator(dependencies.SqlExpressionFactory)
             ]);
         }
     }

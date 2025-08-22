@@ -25,7 +25,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
 
             var cityGroups = context.Customers
                 .GroupBy(c => c.City)
-                .Select(g => new { City = g.Key, Count = g.Count() })
+                .Select(g => new { City = g.Key, Count = (long)g.Count() })
                 .ToList();
 
             cityGroups.Should().NotBeNull();
@@ -42,7 +42,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
                 { 
                     CategoryId = g.Key, 
                     TotalValue = g.Sum(p => p.Price),
-                    ProductCount = g.Count()
+                    ProductCount = (long)g.Count()
                 })
                 .ToList();
 
@@ -212,7 +212,7 @@ namespace EFCore.OpenEdge.FunctionalTests.Query
             using var context = CreateContext();
 
             // Calculate the date threshold on the client side
-            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            var thirtyDaysAgo = DateOnly.FromDateTime(DateTime.Now).AddDays(-30);
 
             var recentOrders = context.Orders
                 .Where(o => o.OrderDate >= thirtyDaysAgo)
