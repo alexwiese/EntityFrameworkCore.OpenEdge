@@ -44,6 +44,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
          */
         private readonly DateTimeTypeMapping _datetime = new DateTimeTypeMapping("datetime", DbType.DateTime);
         private readonly DateTimeOffsetTypeMapping _datetimeOffset = new DateTimeOffsetTypeMapping("datetime-tz", DbType.DateTimeOffset);
+        private readonly OpenEdgeTimestampTimezoneTypeMapping _timestampTimezone = new OpenEdgeTimestampTimezoneTypeMapping("timestamp_timezone", DbType.DateTimeOffset);
         private readonly DateTimeTypeMapping _timeStamp = new DateTimeTypeMapping("timestamp", DbType.DateTime);
         private readonly TimeSpanTypeMapping _time = new TimeSpanTypeMapping("time", DbType.Time);
         private readonly OpenEdgeDateOnlyTypeMapping _dateOnly = new OpenEdgeDateOnlyTypeMapping("date", DbType.Date);
@@ -100,7 +101,7 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "raw", _binary },
                     { "binary", _binary },
                     { "blob", _binary },
-                    { "bit", _boolean},
+                    { "bit", _boolean },
                     { "logical", _boolean },
                     { "char varying", _char },
                     { "char", _char },
@@ -131,6 +132,8 @@ namespace EntityFrameworkCore.OpenEdge.Storage.Internal.Mapping
                     { "text", _char},
                     { "time", _time },
                     { "timestamp", _timeStamp },
+                    { "timestamp_timezone", _timestampTimezone },
+                    { "timestamp-timezone", _timestampTimezone },
                     { "tinyint", _tinyint },
                     { "varbinary", _binary },
                     { "varchar", _varchar }
