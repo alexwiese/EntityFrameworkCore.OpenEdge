@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [V9.0.7] - 09-19-2025
+
+### Fixed
+- Fixed inline fetch/offset statements being cached incorrectly
+
+### Added
+- Extended support for datetimezone type
+
 ## [V9.0.6] - 08-21-2025
 
 ### Fixed
