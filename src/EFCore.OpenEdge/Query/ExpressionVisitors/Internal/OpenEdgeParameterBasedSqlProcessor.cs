@@ -33,11 +33,30 @@ namespace EntityFrameworkCore.OpenEdge.Query.ExpressionVisitors.Internal
             // First, let the base class do its work (e.g. nullability processing)
             queryExpression = base.Optimize(queryExpression, parametersValues, out canCache);
 
-            // Inline OFFSET/FETCH values
+            // Store the original query to check if we modified it
+            var originalQuery = queryExpression;
+
+            // Inline OFFSET/FETCH values. We must inline these, because that's what OpenEdge expects... not possible to parameterize.
             queryExpression = new OffsetValueInliningExpressionVisitor(Dependencies.SqlExpressionFactory, parametersValues).Visit(queryExpression);
+            
+            // If we inlined any OFFSET/FETCH parameters, we CANNOT cache this query
+            // because it now contains hard-coded constants specific to this execution
+            if (!ReferenceEquals(originalQuery, queryExpression))
+            {
+                canCache = false;
+            }
+            
+            // Store the query before boolean conversion to check if it changes
+            var beforeBooleanConversion = queryExpression;
             
             // Convert boolean parameters to integer values for OpenEdge compatibility
             queryExpression = new BooleanParameterConversionVisitor(Dependencies.SqlExpressionFactory, Dependencies.TypeMappingSource, parametersValues).Visit(queryExpression);
+            
+            // If we converted any boolean parameters, we also cannot cache
+            if (!ReferenceEquals(beforeBooleanConversion, queryExpression))
+            {
+                canCache = false;
+            }
             
             return queryExpression;
         }

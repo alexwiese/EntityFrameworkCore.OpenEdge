@@ -17,8 +17,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.0.6</Version>
+    <Version>9.0.7</Version>
     <PackageReleaseNotes>
+      - Version 9.0.7
+        - Extended support for datetimezone type
+        - Fixed inline fetch/offset statements being cached incorrectly
+
       - Version 9.0.6
         - Fixed issue with boolean comparison not being translated correctly in some cases
         - Added support for DateOnly type in queries
