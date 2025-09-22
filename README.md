@@ -12,7 +12,7 @@ EntityFrameworkCore.OpenEdge is an **Entity Framework Core 9 provider** that let
 
 ### Install
 ```bash
-dotnet add package EntityFrameworkCore.OpenEdge --version 9.0.6
+dotnet add package EntityFrameworkCore.OpenEdge --version 9.0.7
 ```
 
 ### DSN-less connection
